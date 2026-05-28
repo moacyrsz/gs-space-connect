@@ -4,7 +4,7 @@ function Card({ className, ...props }) {
   return (
     <div
       className={cn(
-        'rounded-xl border border-(--color-line) bg-(--color-panel) text-(--color-text) shadow-[0_1px_0_rgba(255,255,255,0.02)_inset]',
+        'rounded-md border border-(--color-line) bg-(--color-panel) text-(--color-text)',
         className,
       )}
       {...props}
@@ -15,7 +15,10 @@ function Card({ className, ...props }) {
 function CardHeader({ className, ...props }) {
   return (
     <div
-      className={cn('flex flex-col gap-1 p-5 pb-3', className)}
+      className={cn(
+        'flex flex-col gap-0.5 px-4 pt-4 pb-3 border-b border-(--color-line)',
+        className,
+      )}
       {...props}
     />
   )
@@ -25,7 +28,7 @@ function CardTitle({ className, ...props }) {
   return (
     <h3
       className={cn(
-        'text-sm font-medium leading-none tracking-tight text-(--color-text)',
+        'text-[13px] font-medium leading-tight tracking-tight text-(--color-text)',
         className,
       )}
       {...props}
@@ -36,20 +39,20 @@ function CardTitle({ className, ...props }) {
 function CardDescription({ className, ...props }) {
   return (
     <p
-      className={cn('text-xs text-(--color-muted)', className)}
+      className={cn('text-[11px] text-(--color-muted)', className)}
       {...props}
     />
   )
 }
 
 function CardContent({ className, ...props }) {
-  return <div className={cn('p-5 pt-0', className)} {...props} />
+  return <div className={cn('p-4', className)} {...props} />
 }
 
 function CardFooter({ className, ...props }) {
   return (
     <div
-      className={cn('flex items-center p-5 pt-0', className)}
+      className={cn('flex items-center px-4 py-3 border-t border-(--color-line)', className)}
       {...props}
     />
   )

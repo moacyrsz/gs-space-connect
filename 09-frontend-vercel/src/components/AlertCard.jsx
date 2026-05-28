@@ -19,7 +19,7 @@ const severityCopy = {
 function timeAgo(date) {
   const minutes = Math.round((Date.now() - new Date(date).getTime()) / 60000)
   if (minutes < 1) return 'agora'
-  if (minutes < 60) return `há ${minutes} min`
+  if (minutes < 60) return `há ${minutes}m`
   const hours = Math.floor(minutes / 60)
   return `há ${hours}h`
 }
@@ -30,35 +30,41 @@ function AlertCard({ alert, onSelect }) {
     <button
       type="button"
       onClick={() => onSelect?.(alert)}
-      className="group w-full text-left rounded-lg border border-(--color-line) bg-(--color-panel-2)/60 p-3 transition-colors hover:border-(--color-accent)/40 hover:bg-(--color-panel-2)"
+      className="group w-full text-left rounded-md border border-(--color-line) p-3 transition-colors hover:border-(--color-line-strong) hover:bg-(--color-panel-2)/40"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Badge variant={alert.severity}>{severityCopy[alert.severity]}</Badge>
-          <span className="flex items-center gap-1.5 text-[11px] text-(--color-muted)">
-            <Icon className="h-3 w-3" />
+      <div className="flex items-start justify-between gap-3 mb-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <Badge variant={alert.severity} className="h-4 px-1.5 text-[9px]">
+            {severityCopy[alert.severity]}
+          </Badge>
+          <span className="flex items-center gap-1 text-[10px] text-(--color-faint) truncate">
+            <Icon className="h-2.5 w-2.5 shrink-0" />
             {sourceLabels[alert.source]}
           </span>
         </div>
-        <span className="text-[11px] tabular-nums text-(--color-muted)">{timeAgo(alert.at)}</span>
+        <span className="text-[10px] tabular-nums text-(--color-faint) shrink-0">
+          {timeAgo(alert.at)}
+        </span>
       </div>
-      <p className="mt-2 flex items-center gap-1 text-sm font-medium text-(--color-text)">
-        <MapPin className="h-3.5 w-3.5 text-(--color-muted)" />
-        {alert.region}
+      <p className="flex items-center gap-1 text-[13px] font-medium text-(--color-text) mb-0.5">
+        <MapPin className="h-3 w-3 text-(--color-faint) shrink-0" />
+        <span className="truncate">{alert.region}</span>
       </p>
-      <p className="mt-1 text-xs leading-relaxed text-(--color-muted)">{alert.message}</p>
+      <p className="text-[11px] leading-snug text-(--color-muted) line-clamp-2">
+        {alert.message}
+      </p>
       {alert.proba != null && (
         <div className="mt-2 flex items-center gap-2">
-          <span className="text-[11px] uppercase tracking-wider text-(--color-muted)">
-            Probabilidade
+          <span className="text-[9px] uppercase tracking-wider text-(--color-faint) font-medium">
+            Prob.
           </span>
-          <div className="flex-1 h-1.5 rounded-full bg-(--color-line)">
+          <div className="flex-1 h-1 rounded-full bg-(--color-panel-2)">
             <div
               className="h-full rounded-full bg-(--color-accent)"
               style={{ width: `${Math.round(alert.proba * 100)}%` }}
             />
           </div>
-          <span className="text-[11px] tabular-nums text-(--color-text)">
+          <span className="text-[10px] tabular-nums text-(--color-text-soft) font-medium">
             {Math.round(alert.proba * 100)}%
           </span>
         </div>

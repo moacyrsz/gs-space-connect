@@ -8,8 +8,6 @@ import {
   Flame,
   Cpu,
   Workflow,
-  Sparkles,
-  Bot,
   X,
   Crosshair,
   Filter,
@@ -25,32 +23,20 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import AlertCard from '@/components/AlertCard'
 import BiomeFilter from '@/components/BiomeFilter'
-import {
-  biomes,
-  initialAlerts,
-  sourceColors,
-  sourceLabels,
-} from '@/data/mocks'
+import { initialAlerts, sourceColors, sourceLabels } from '@/data/mocks'
 import { cn } from '@/lib/utils'
 
-const severityRadius = { high: 14, medium: 10, low: 7 }
+const severityRadius = { high: 12, medium: 9, low: 6 }
 const severityColor = {
-  high: 'oklch(0.66 0.22 25)',
-  medium: 'oklch(0.78 0.18 70)',
-  low: 'oklch(0.72 0.16 155)',
+  high: 'oklch(0.640 0.180 25)',
+  medium: 'oklch(0.790 0.140 85)',
+  low: 'oklch(0.700 0.130 155)',
 }
 const severityCopy = { high: 'Crítico', medium: 'Médio', low: 'Info' }
 
-const sourceIcons = {
-  visao: Flame,
-  iot: Cpu,
-  rpa: Workflow,
-  qml: Sparkles,
-  nlp: Bot,
-}
+const sourceIcons = { visao: Flame, iot: Cpu, rpa: Workflow }
 
 function FlyTo({ coords }) {
   const map = useMap()
@@ -65,16 +51,15 @@ function AlertsMap() {
 
   const [biomeFilter, setBiomeFilter] = useState(params.get('bioma') || null)
   const [severityFilter, setSeverityFilter] = useState(
-    params.get('severity') ? new Set([params.get('severity')]) : new Set(['high', 'medium', 'low']),
+    params.get('severity')
+      ? new Set([params.get('severity')])
+      : new Set(['high', 'medium', 'low']),
   )
-  const [sourceFilter, setSourceFilter] = useState(
-    new Set(['visao', 'iot', 'rpa']),
-  )
+  const [sourceFilter, setSourceFilter] = useState(new Set(['visao', 'iot', 'rpa']))
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(initialAlerts[0])
   const [flyTarget, setFlyTarget] = useState(null)
 
-  // Sync filters to URL for shareable links
   useEffect(() => {
     const next = new URLSearchParams()
     if (biomeFilter) next.set('bioma', biomeFilter)
@@ -94,18 +79,21 @@ function AlertsMap() {
     })
   }, [biomeFilter, severityFilter, sourceFilter, search])
 
-  const stats = useMemo(() => ({
-    total: filtered.length,
-    high: filtered.filter((a) => a.severity === 'high').length,
-    medium: filtered.filter((a) => a.severity === 'medium').length,
-    low: filtered.filter((a) => a.severity === 'low').length,
-  }), [filtered])
+  const stats = useMemo(
+    () => ({
+      total: filtered.length,
+      high: filtered.filter((a) => a.severity === 'high').length,
+      medium: filtered.filter((a) => a.severity === 'medium').length,
+      low: filtered.filter((a) => a.severity === 'low').length,
+    }),
+    [filtered],
+  )
 
   const toggleSeverity = (sev) => {
     setSeverityFilter((prev) => {
       const next = new Set(prev)
       next.has(sev) ? next.delete(sev) : next.add(sev)
-      if (next.size === 0) return prev // não permite zero
+      if (next.size === 0) return prev
       return next
     })
   }
@@ -132,44 +120,41 @@ function AlertsMap() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Hero header */}
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+      {/* Header */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <Badge variant="outline" className="mb-2 font-mono">
-            <Layers className="h-3 w-3 mr-1" /> {filtered.length} alertas no recorte
-          </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight gradient-text">
+          <p className="text-[11px] uppercase tracking-wider text-(--color-faint) font-medium mb-1">
+            Geoespacial
+          </p>
+          <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-(--color-text)">
             Mapa de Alertas
           </h1>
-          <p className="mt-1 text-sm text-(--color-muted) max-w-xl">
-            Geolocalização dos alertas ativos sobre tile dark CARTO. Marcadores pulsam quando
-            o classificador inferiu probabilidade acima de 0.85.
+          <p className="mt-1 text-[13px] text-(--color-muted) max-w-2xl">
+            Geolocalização dos alertas ativos sobre tile dark CARTO. Marcadores
+            dimensionados por severidade.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-(--color-muted) pointer-events-none" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar região…"
-              className="pl-8 w-64"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-(--color-muted) hover:text-(--color-text)"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </div>
+        <div className="relative w-full lg:w-72">
+          <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-(--color-faint) pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar região ou mensagem"
+            className="pl-8"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-(--color-faint) hover:text-(--color-text)"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="grid grid-cols-4 gap-3">
         <StatPill label="Total" value={stats.total} variant="default" />
         <StatPill label="Críticos" value={stats.high} variant="high" />
@@ -178,11 +163,11 @@ function AlertsMap() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2.5">
         <BiomeFilter value={biomeFilter} onChange={setBiomeFilter} />
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs text-(--color-muted) mr-1">
-            <Filter className="h-3.5 w-3.5" /> Severidade
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-(--color-faint) font-medium mr-1">
+            <Filter className="h-3 w-3" /> Severidade
           </span>
           {['high', 'medium', 'low'].map((s) => (
             <button
@@ -190,24 +175,24 @@ function AlertsMap() {
               type="button"
               onClick={() => toggleSeverity(s)}
               className={cn(
-                'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors',
+                'flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors',
                 severityFilter.has(s)
-                  ? 'border-(--color-line-strong) bg-(--color-panel-2)'
-                  : 'border-(--color-line) bg-transparent text-(--color-muted) opacity-60 line-through',
+                  ? 'border-(--color-line-strong) bg-(--color-panel-2) text-(--color-text)'
+                  : 'border-(--color-line) bg-transparent text-(--color-faint) line-through',
               )}
             >
               <span
-                className="h-2 w-2 rounded-full"
+                className="h-1.5 w-1.5 rounded-full"
                 style={{ background: severityColor[s] }}
               />
               {severityCopy[s]}
             </button>
           ))}
 
-          <span className="ml-2 flex items-center gap-1.5 text-xs text-(--color-muted) mr-1">
+          <span className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium ml-3 mr-1">
             Origem
           </span>
-          {Object.keys(sourceLabels).filter((k) => k !== 'qml' && k !== 'nlp').map((s) => {
+          {['visao', 'iot', 'rpa'].map((s) => {
             const Icon = sourceIcons[s]
             const active = sourceFilter.has(s)
             return (
@@ -216,10 +201,10 @@ function AlertsMap() {
                 type="button"
                 onClick={() => toggleSource(s)}
                 className={cn(
-                  'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors',
+                  'flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors',
                   active
-                    ? 'border-(--color-line-strong) bg-(--color-panel-2)'
-                    : 'border-(--color-line) bg-transparent text-(--color-muted) opacity-60 line-through',
+                    ? 'border-(--color-line-strong) bg-(--color-panel-2) text-(--color-text)'
+                    : 'border-(--color-line) bg-transparent text-(--color-faint) line-through',
                 )}
               >
                 <Icon className="h-3 w-3" />
@@ -230,8 +215,8 @@ function AlertsMap() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 overflow-hidden surface-elev p-0">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <Card className="lg:col-span-2 overflow-hidden p-0">
           <CardContent className="p-0 relative">
             <div className="h-[560px] w-full">
               <MapContainer
@@ -256,14 +241,16 @@ function AlertsMap() {
                     pathOptions={{
                       color: severityColor[a.severity],
                       fillColor: severityColor[a.severity],
-                      fillOpacity: 0.55,
-                      weight: 2,
+                      fillOpacity: 0.5,
+                      weight: 1.5,
                     }}
                     eventHandlers={{ click: () => handleSelect(a) }}
                   >
                     <Popup>
-                      <div className="space-y-1">
-                        <p className="font-semibold text-(--color-text)">{a.region}</p>
+                      <div className="space-y-0.5">
+                        <p className="font-semibold text-(--color-text)">
+                          {a.region}
+                        </p>
                         <p className="text-(--color-muted)">
                           {sourceLabels[a.source]} · {severityCopy[a.severity]}
                         </p>
@@ -279,31 +266,31 @@ function AlertsMap() {
                 ))}
               </MapContainer>
 
-              {/* Floating overlay: zoom-in hint + reset */}
-              <div className="absolute top-3 left-3 z-[400] flex flex-col gap-2">
-                <div className="glass rounded-lg px-3 py-2 text-[11px] text-(--color-muted) flex items-center gap-2">
+              {/* Hint sutil */}
+              <div className="absolute top-3 left-3 z-[400]">
+                <div className="rounded-md border border-(--color-line) bg-(--color-panel) px-2.5 py-1.5 text-[11px] text-(--color-muted) flex items-center gap-1.5">
                   <Crosshair className="h-3 w-3" />
-                  Clique em um marcador para ver detalhes
+                  Clique em um marcador para detalhes
                 </div>
               </div>
 
-              {/* Legenda flutuante */}
-              <div className="absolute bottom-3 left-3 z-[400] glass rounded-lg p-3 w-56">
-                <p className="text-[10px] uppercase tracking-wider text-(--color-faint) mb-2">
+              {/* Legenda */}
+              <div className="absolute bottom-3 left-3 z-[400] rounded-md border border-(--color-line) bg-(--color-panel) p-2.5 w-48">
+                <p className="text-[9px] uppercase tracking-wider text-(--color-faint) font-medium mb-1.5">
                   Legenda
                 </p>
-                <div className="flex flex-col gap-1.5 text-xs">
+                <div className="flex flex-col gap-1 text-[11px]">
                   {['high', 'medium', 'low'].map((s) => (
                     <div key={s} className="flex items-center gap-2">
                       <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{
-                          background: severityColor[s],
-                          boxShadow: `0 0 8px ${severityColor[s]}`,
-                        }}
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{ background: severityColor[s] }}
                       />
                       <span className="text-(--color-muted)">
-                        {severityCopy[s]} ({s === 'high' ? '>0.8' : s === 'medium' ? '0.5–0.8' : '<0.5'})
+                        {severityCopy[s]}
+                      </span>
+                      <span className="ml-auto text-(--color-faint) font-mono text-[10px]">
+                        {s === 'high' ? '>0.8' : s === 'medium' ? '0.5–0.8' : '<0.5'}
                       </span>
                     </div>
                   ))}
@@ -313,7 +300,7 @@ function AlertsMap() {
           </CardContent>
         </Card>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <Card className="hover-lift">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -322,11 +309,11 @@ function AlertsMap() {
                   {severityCopy[selected.severity]}
                 </Badge>
               </div>
-              <CardDescription className="font-mono text-[11px]">
+              <CardDescription className="font-mono text-[10px]">
                 {selected.id}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+            <CardContent className="space-y-2.5 text-[12px]">
               <DetailRow label="Região" value={selected.region} />
               <DetailRow
                 label="Coordenadas"
@@ -339,9 +326,9 @@ function AlertsMap() {
               <DetailRow
                 label="Origem"
                 value={
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-1.5">
                     <span
-                      className="h-2 w-2 rounded-full"
+                      className="h-1.5 w-1.5 rounded-full"
                       style={{ background: sourceColors[selected.source] }}
                     />
                     {sourceLabels[selected.source]}
@@ -354,23 +341,22 @@ function AlertsMap() {
                   label="Probabilidade"
                   value={
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 h-1.5 rounded-full bg-(--color-line)">
+                      <div className="flex-1 h-1 rounded-full bg-(--color-panel-2)">
                         <div
                           className="h-full rounded-full bg-(--color-accent)"
                           style={{ width: `${Math.round(selected.proba * 100)}%` }}
                         />
                       </div>
-                      <span className="text-xs tabular-nums">
+                      <span className="text-[11px] tabular-nums">
                         {Math.round(selected.proba * 100)}%
                       </span>
                     </div>
                   }
                 />
               )}
-              <Separator />
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-1">
                 <Button onClick={dispatch} size="sm" className="flex-1">
-                  <Bell className="h-3.5 w-3.5" />
+                  <Bell className="h-3 w-3" />
                   Acionar equipe
                 </Button>
                 <Button
@@ -378,8 +364,7 @@ function AlertsMap() {
                   size="sm"
                   onClick={() => setFlyTarget([...selected.coords])}
                 >
-                  <Crosshair className="h-3.5 w-3.5" />
-                  Centralizar
+                  <Crosshair className="h-3 w-3" />
                 </Button>
               </div>
             </CardContent>
@@ -389,26 +374,25 @@ function AlertsMap() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Lista de alertas</span>
-                <Badge variant="outline" className="font-normal">
+                <Badge variant="outline" className="font-mono">
                   {filtered.length}
                 </Badge>
               </CardTitle>
-              <CardDescription>
-                Clique para focar no mapa
-              </CardDescription>
+              <CardDescription>Clique para focar no mapa</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-2 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin">
+              <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin">
                 {filtered.map((a) => (
                   <AlertCard key={a.id} alert={a} onSelect={handleSelect} />
                 ))}
                 {filtered.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <p className="text-sm text-(--color-muted)">
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <Layers className="h-7 w-7 text-(--color-faint) mb-1.5" />
+                    <p className="text-[12px] text-(--color-muted)">
                       Nada encontrado.
                     </p>
-                    <p className="text-[11px] text-(--color-faint) mt-1">
-                      Tente afrouxar os filtros acima.
+                    <p className="text-[10px] text-(--color-faint) mt-0.5">
+                      Tente afrouxar os filtros.
                     </p>
                   </div>
                 )}
@@ -423,23 +407,23 @@ function AlertsMap() {
 
 function StatPill({ label, value, variant = 'default' }) {
   const variants = {
-    default: 'border-(--color-line) bg-(--color-panel)',
-    high: 'border-(--color-fire-high)/40 bg-(--color-fire-high)/10',
-    medium: 'border-(--color-fire-mid)/40 bg-(--color-fire-mid)/10',
-    low: 'border-(--color-vegetation)/40 bg-(--color-vegetation)/10',
+    default: 'border-(--color-line)',
+    high: 'border-(--color-danger)/40',
+    medium: 'border-(--color-warning)/40',
+    low: 'border-(--color-success)/40',
   }
   const valueColors = {
     default: 'text-(--color-text)',
-    high: 'text-(--color-fire-high)',
-    medium: 'text-(--color-fire-mid)',
-    low: 'text-(--color-vegetation)',
+    high: 'text-(--color-danger)',
+    medium: 'text-(--color-warning)',
+    low: 'text-(--color-success)',
   }
   return (
-    <div className={cn('rounded-lg border px-4 py-2.5 hover-lift', variants[variant])}>
-      <p className="text-[11px] uppercase tracking-wider text-(--color-muted)">
+    <div className={cn('rounded-md border px-3 py-2 hover-lift', variants[variant])}>
+      <p className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium">
         {label}
       </p>
-      <p className={cn('text-2xl font-semibold tabular-nums', valueColors[variant])}>
+      <p className={cn('text-[20px] font-semibold tabular-nums', valueColors[variant])}>
         {value}
       </p>
     </div>
@@ -449,10 +433,10 @@ function StatPill({ label, value, variant = 'default' }) {
 function DetailRow({ label, value }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wider text-(--color-muted) mb-0.5">
+      <p className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium mb-0.5">
         {label}
       </p>
-      <div className="text-sm text-(--color-text)">{value}</div>
+      <div className="text-[12px] text-(--color-text)">{value}</div>
     </div>
   )
 }

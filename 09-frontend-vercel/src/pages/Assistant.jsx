@@ -17,6 +17,8 @@ import {
   Leaf,
   Zap,
   Award,
+  AlertTriangle,
+  Square,
 } from 'lucide-react'
 import {
   Card,
@@ -30,7 +32,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
-import { mockRagAnswer, ragSuggestions } from '@/data/mocks'
+import { streamChat } from '@/lib/chat'
 import { cn } from '@/lib/utils'
 
 const introMessage = {
@@ -38,18 +40,37 @@ const introMessage = {
   role: 'assistant',
   content:
     'Olá. Sou o assistente técnico da plataforma **Space Connect**. Posso ajudar com normas de eficiência hídrica e energética para edifícios verdes — *LEED v4.1, AQUA-HQE, BREEAM, ASHRAE 90.1, NBR 15527, NBR 16401-1* — e com a aplicabilidade dessas referências a estações remotas e missões espaciais. O que gostaria de saber?',
-  sources: ['Espaço de conhecimento padrão'],
 }
 
 const quickActions = [
-  { icon: Leaf, label: 'Sobre eficiência hídrica', q: 'Como a NBR 15527 se aplica a estações remotas?' },
-  { icon: Zap, label: 'Sobre eficiência energética', q: 'O que muda em ASHRAE 90.1 para módulos pressurizados?' },
-  { icon: Award, label: 'Sobre certificações', q: 'Quais certificações fazem sentido para edifícios verdes?' },
-  { icon: Database, label: 'Sobre Net Zero', q: 'Net Zero de energia funciona em ambiente espacial?' },
+  {
+    icon: Leaf,
+    label: 'Eficiência hídrica',
+    q: 'Como a NBR 15527 se aplica ao aproveitamento de água em estações remotas?',
+  },
+  {
+    icon: Zap,
+    label: 'Eficiência energética',
+    q: 'O que muda em ASHRAE 90.1 quando aplicada a módulos pressurizados em órbita?',
+  },
+  {
+    icon: Award,
+    label: 'Certificações',
+    q: 'Que critérios LEED v4.1 são realisticamente alcançáveis em uma estação remota?',
+  },
+  {
+    icon: Database,
+    label: 'Net Zero',
+    q: 'O conceito de Net Zero Energy se aplica a missões espaciais? O que precisa adaptar?',
+  },
 ]
 
-const STREAM_CHARS_PER_TICK = 3
-const STREAM_TICK_MS = 18
+const promptSuggestions = [
+  'Compare LEED, AQUA-HQE e BREEAM',
+  'Como medir eficiência hídrica em uma estação?',
+  'Qual a diferença entre NBR 15575 e ASHRAE 90.1?',
+  'Princípios ECLSS aplicáveis a edifícios na Terra',
+]
 
 function Assistant() {
   const [params] = useSearchParams()
@@ -57,14 +78,11 @@ function Assistant() {
   const [history, setHistory] = useState([introMessage])
   const [pending, setPending] = useState(false)
   const scrollRef = useRef(null)
-  const streamTimerRef = useRef(null)
+  const abortRef = useRef(null)
 
-  // Permite pré-preencher via ?q= (Command Palette)
   useEffect(() => {
     const q = params.get('q')
-    if (q) {
-      setInput(q.replace(/\+/g, ' '))
-    }
+    if (q) setInput(q.replace(/\+/g, ' '))
   }, [params])
 
   useEffect(() => {
@@ -74,47 +92,92 @@ function Assistant() {
   }, [history, pending])
 
   useEffect(() => {
-    return () => {
-      if (streamTimerRef.current) clearInterval(streamTimerRef.current)
-    }
+    return () => abortRef.current?.abort()
   }, [])
 
-  const send = (text) => {
+  const send = async (text) => {
     const q = text.trim()
     if (!q || pending) return
 
     const userMsg = { id: Date.now(), role: 'user', content: q }
-    setHistory((h) => [...h, userMsg])
+    const assistantId = Date.now() + 1
+    const assistantSeed = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      streaming: true,
+    }
+
+    // Snapshot do histórico que será enviado à API (somente user/assistant
+    // já existentes, mais a nova pergunta — sem o intro fixo nem a seed vazia).
+    const apiMessages = [
+      ...history
+        .filter((m) => m.id !== 'intro' && (m.role === 'user' || m.role === 'assistant'))
+        .map(({ role, content }) => ({ role, content })),
+      { role: 'user', content: q },
+    ]
+
+    setHistory((h) => [...h, userMsg, assistantSeed])
     setInput('')
     setPending(true)
 
-    // Simula latência inicial antes de começar a "streamar"
-    setTimeout(() => {
-      const { answer, sources } = mockRagAnswer(q)
-      const assistantId = Date.now() + 1
-      // adiciona com conteúdo vazio + flag streaming
-      setHistory((h) => [
-        ...h,
-        { id: assistantId, role: 'assistant', content: '', sources, streaming: true },
-      ])
+    const controller = new AbortController()
+    abortRef.current = controller
 
-      let i = 0
-      streamTimerRef.current = setInterval(() => {
-        i = Math.min(i + STREAM_CHARS_PER_TICK, answer.length)
+    await streamChat({
+      messages: apiMessages,
+      signal: controller.signal,
+      onDelta: (delta) => {
+        setHistory((h) =>
+          h.map((m) =>
+            m.id === assistantId ? { ...m, content: m.content + delta } : m,
+          ),
+        )
+      },
+      onDone: () => {
+        setHistory((h) =>
+          h.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)),
+        )
+        setPending(false)
+        abortRef.current = null
+      },
+      onError: (msg, payload) => {
         setHistory((h) =>
           h.map((m) =>
             m.id === assistantId
-              ? { ...m, content: answer.slice(0, i), streaming: i < answer.length }
+              ? {
+                  ...m,
+                  streaming: false,
+                  error: msg,
+                  content: m.content || '',
+                }
               : m,
           ),
         )
-        if (i >= answer.length) {
-          clearInterval(streamTimerRef.current)
-          streamTimerRef.current = null
-          setPending(false)
+        setPending(false)
+        abortRef.current = null
+        if (payload?.status === 401 || payload?.status === 403) {
+          toast.error('Chave do Gemini inválida ou ausente', {
+            description: 'Configure GEMINI_API_KEY na Vercel.',
+          })
+        } else if (payload?.status === 429) {
+          toast.error('Limite de uso atingido', {
+            description: 'Free tier: 15 req/min, 1.500 req/dia. Aguarde alguns minutos.',
+          })
+        } else {
+          toast.error('Falha no assistente', { description: msg })
         }
-      }, STREAM_TICK_MS)
-    }, 320)
+      },
+    })
+  }
+
+  const stop = () => {
+    abortRef.current?.abort()
+    abortRef.current = null
+    setHistory((h) =>
+      h.map((m) => (m.streaming ? { ...m, streaming: false } : m)),
+    )
+    setPending(false)
   }
 
   const reset = () => {
@@ -127,30 +190,29 @@ function Assistant() {
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
       <div className="xl:col-span-8 flex flex-col gap-4">
         <div>
-          <Badge variant="outline" className="mb-2 font-mono">
-            <Sparkles className="h-3 w-3 mr-1" /> NLP fine-tuned + RAG
-          </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight gradient-text">
+          <p className="text-[11px] uppercase tracking-wider text-(--color-faint) font-medium mb-1">
+            Camada de IA · NLP + GenAI
+          </p>
+          <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-(--color-text)">
             Assistente Técnico
           </h1>
-          <p className="mt-1 text-sm text-(--color-muted) max-w-2xl">
-            Camada combinada das disciplinas de NLP (chatbot fine-tuned em Edifícios Verdes /
-            Net Zero) e Generative AI (RAG sobre documentos espaciais). Esta versão pública
-            usa respostas simuladas; a versão fim-a-fim consome o modelo ajustado com LoRA
-            e o vector store da disciplina de GenAI.
+          <p className="mt-1 text-[13px] text-(--color-muted) max-w-2xl">
+            Respostas geradas em tempo real por <strong className="text-(--color-text)">Gemini 2.0 Flash</strong> com
+            prompt sistêmico especializado em normas de eficiência hídrica e
+            energética e sua aplicação a infraestrutura espacial.
           </p>
         </div>
 
         <Card className="hover-lift overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-(--color-line) py-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-(--color-accent) to-(--color-accent-strong) shadow-[0_0_24px_-6px_oklch(0.72_0.18_50_/_0.6)]">
-                <Bot className="h-4 w-4 text-(--color-bg)" />
+          <CardHeader className="flex flex-row items-center justify-between py-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md border border-(--color-line) bg-(--color-panel-2) text-(--color-accent)">
+                <Bot className="h-3.5 w-3.5" />
               </div>
               <div>
                 <CardTitle>Conversa</CardTitle>
-                <CardDescription>
-                  {history.filter((m) => m.role !== 'system').length} mensagens · Mock didático
+                <CardDescription className="font-mono">
+                  {history.filter((m) => m.role !== 'system').length} mensagens · gemini-2.0-flash
                 </CardDescription>
               </div>
             </div>
@@ -172,18 +234,6 @@ function Assistant() {
               {history.map((m) => (
                 <Message key={m.id} message={m} />
               ))}
-              {pending && history[history.length - 1]?.role !== 'assistant' && (
-                <div className="flex items-start gap-2.5 max-w-[85%]">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-(--color-accent) to-(--color-accent-strong)">
-                    <Bot className="h-4 w-4 text-(--color-bg)" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-3 w-2/3" />
-                    <Skeleton className="h-3 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                </div>
-              )}
             </div>
 
             <Separator />
@@ -202,14 +252,21 @@ function Assistant() {
                   placeholder="Pergunte sobre NBR 15527, ASHRAE 90.1, Net Zero, certificações…"
                   disabled={pending}
                 />
-                <Button type="submit" disabled={pending || !input.trim()}>
-                  <Send className="h-4 w-4" />
-                  Enviar
-                </Button>
+                {pending ? (
+                  <Button type="button" variant="secondary" onClick={stop}>
+                    <Square className="h-4 w-4" />
+                    Parar
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={!input.trim()}>
+                    <Send className="h-4 w-4" />
+                    Enviar
+                  </Button>
+                )}
               </form>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {ragSuggestions.map((s) => (
+                {promptSuggestions.map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -226,7 +283,6 @@ function Assistant() {
         </Card>
       </div>
 
-      {/* Sidebar com quick actions e knowledge */}
       <div className="xl:col-span-4 flex flex-col gap-4">
         <Card className="hover-lift">
           <CardHeader>
@@ -252,7 +308,9 @@ function Assistant() {
                   <p className="text-sm font-medium text-(--color-text) group-hover:text-(--color-accent) transition-colors">
                     {qa.label}
                   </p>
-                  <p className="text-[11px] text-(--color-muted) truncate">{qa.q}</p>
+                  <p className="text-[11px] text-(--color-muted) line-clamp-2">
+                    {qa.q}
+                  </p>
                 </div>
               </button>
             ))}
@@ -265,20 +323,20 @@ function Assistant() {
               <BookOpen className="h-4 w-4 text-(--color-vegetation)" />
               Base de conhecimento
             </CardTitle>
-            <CardDescription>Fontes indexadas</CardDescription>
+            <CardDescription>Tópicos cobertos pelo prompt</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-1.5 text-xs">
             {[
-              'NBR 15527:2019 — Aproveitamento de água da chuva',
-              'NBR 16401-1:2008 — Climatização e qualidade do ar',
-              'NBR 15575:2013 — Edificações habitacionais',
+              'NBR 15527:2019 — aproveitamento de água da chuva',
+              'NBR 16401-1:2008 — climatização e qualidade do ar',
+              'NBR 15575:2013 — edificações habitacionais',
               'ASHRAE 90.1-2019 — Energy Standard',
               'LEED v4.1 — Building Design and Construction',
-              'AQUA-HQE — Processo Brasileiro',
+              'AQUA-HQE — processo brasileiro',
               'BREEAM International New Construction',
-              'ISO 50001:2018 — Energy management systems',
-              'NZEB — DOE/NREL definitions',
-              'GHG Protocol Corporate Standard',
+              'ISO 50001:2018 — gestão de energia',
+              'NZEB — definições DOE/NREL',
+              'ECLSS — Environmental Control and Life Support Systems',
             ].map((d) => (
               <div
                 key={d}
@@ -289,7 +347,9 @@ function Assistant() {
               </div>
             ))}
             <p className="text-[11px] text-(--color-faint) mt-2 px-1">
-              10 documentos indexados · ChromaDB · embeddings multilingual-e5-large
+              Atendido por Google Gemini 2.0 Flash com prompt sistêmico
+              especializado. Pipeline completo de RAG sobre PDFs ficará
+              disponível na disciplina de GenAI.
             </p>
           </CardContent>
         </Card>
@@ -309,6 +369,20 @@ function Message({ message }) {
     setTimeout(() => setCopied(false), 1600)
   }
 
+  if (message.error && !message.content) {
+    return (
+      <div className="flex items-start gap-2.5 max-w-[88%] fade-up">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-(--color-danger)/30 bg-(--color-danger)/10 text-(--color-danger)">
+          <AlertTriangle className="h-3.5 w-3.5" />
+        </div>
+        <div className="rounded-md border border-(--color-danger)/30 bg-(--color-danger)/5 px-3 py-2 text-[13px] text-(--color-text)">
+          <p className="font-medium mb-0.5">Não consegui responder agora.</p>
+          <p className="text-[11px] text-(--color-muted)">{message.error}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -318,25 +392,29 @@ function Message({ message }) {
     >
       <div
         className={cn(
-          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border',
           isUser
-            ? 'bg-(--color-panel-2) text-(--color-muted) border border-(--color-line)'
-            : 'bg-gradient-to-br from-(--color-accent) to-(--color-accent-strong) text-(--color-bg) shadow-[0_0_16px_-4px_oklch(0.72_0.18_50_/_0.5)]',
+            ? 'bg-(--color-panel-2) text-(--color-muted) border-(--color-line)'
+            : 'bg-(--color-accent)/10 text-(--color-accent) border-(--color-accent)/30',
         )}
       >
-        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+        {isUser ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
       </div>
       <div className="flex-1 min-w-0">
         <div
           className={cn(
-            'rounded-lg px-3.5 py-2.5 text-sm leading-relaxed prose prose-invert prose-sm max-w-none',
+            'rounded-md px-3 py-2 text-[13px] leading-relaxed max-w-none',
             isUser
               ? 'bg-(--color-accent)/10 text-(--color-text) border border-(--color-accent)/30'
               : 'bg-(--color-panel-2) text-(--color-text-soft) border border-(--color-line)',
           )}
         >
           {message.streaming && !message.content ? (
-            <span className="text-(--color-muted)">Pensando…</span>
+            <div className="space-y-2 py-1">
+              <Skeleton className="h-3 w-2/3" />
+              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
           ) : isUser ? (
             <p className="m-0">{message.content}</p>
           ) : (
@@ -344,14 +422,30 @@ function Message({ message }) {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  p: (props) => <p className="m-0 mb-1 last:mb-0" {...props} />,
+                  p: (props) => <p className="m-0 mb-2 last:mb-0" {...props} />,
                   strong: (props) => (
                     <strong className="text-(--color-text) font-semibold" {...props} />
                   ),
-                  em: (props) => <em className="text-(--color-accent)" {...props} />,
+                  em: (props) => (
+                    <em className="text-(--color-accent) not-italic font-medium" {...props} />
+                  ),
                   code: (props) => (
                     <code
                       className="rounded bg-(--color-panel-3) px-1 py-0.5 text-[12px] font-mono text-(--color-text)"
+                      {...props}
+                    />
+                  ),
+                  ul: (props) => (
+                    <ul className="m-0 mb-2 ml-5 list-disc space-y-0.5" {...props} />
+                  ),
+                  ol: (props) => (
+                    <ol className="m-0 mb-2 ml-5 list-decimal space-y-0.5" {...props} />
+                  ),
+                  a: (props) => (
+                    <a
+                      className="text-(--color-accent) underline-offset-2 hover:underline"
+                      target="_blank"
+                      rel="noreferrer"
                       {...props}
                     />
                   ),
@@ -362,20 +456,8 @@ function Message({ message }) {
             </div>
           )}
         </div>
-        {!isUser && message.sources && !message.streaming && message.content && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <span className="flex items-center gap-1 text-[11px] text-(--color-muted)">
-              <FileText className="h-3 w-3" />
-              fontes:
-            </span>
-            {message.sources.map((s) => (
-              <span
-                key={s}
-                className="rounded-full bg-(--color-panel-2) px-2 py-0.5 text-[11px] text-(--color-muted) border border-(--color-line)"
-              >
-                {s}
-              </span>
-            ))}
+        {!isUser && message.content && !message.streaming && (
+          <div className="mt-1.5 flex items-center gap-1.5">
             <button
               type="button"
               onClick={onCopy}

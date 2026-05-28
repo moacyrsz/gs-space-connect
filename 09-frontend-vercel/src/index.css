@@ -1,42 +1,56 @@
 @import 'tailwindcss';
 @import 'leaflet/dist/leaflet.css';
 
+/*
+ * Tokens inspirados em Linear (estrutura), Plausible (convenções tabulares)
+ * e Geist/Vercel (disciplina cromática). Regra anti-IA: zero gradiente
+ * colorido, zero glassmorphism, zero glow, accent monocromático.
+ */
+
 @theme {
-  --color-bg: oklch(0.158 0.018 270);
-  --color-bg-elev: oklch(0.182 0.02 270);
-  --color-panel: oklch(0.205 0.022 270);
-  --color-panel-2: oklch(0.244 0.026 270);
-  --color-panel-3: oklch(0.288 0.028 270);
-  --color-line: oklch(0.32 0.026 270);
-  --color-line-strong: oklch(0.4 0.028 270);
+  --color-bg: oklch(0.145 0.002 270);
+  --color-bg-elev: oklch(0.165 0.002 270);
+  --color-panel: oklch(0.195 0.003 270);
+  --color-panel-2: oklch(0.225 0.003 270);
+  --color-panel-3: oklch(0.255 0.004 270);
 
-  --color-text: oklch(0.96 0.008 270);
-  --color-text-soft: oklch(0.86 0.012 270);
-  --color-muted: oklch(0.66 0.018 270);
-  --color-faint: oklch(0.5 0.02 270);
+  --color-line: oklch(0.260 0.004 270);
+  --color-line-strong: oklch(0.310 0.005 270);
 
-  --color-accent: oklch(0.72 0.18 50);
-  --color-accent-strong: oklch(0.66 0.2 45);
-  --color-accent-soft: oklch(0.36 0.12 50);
+  --color-text: oklch(0.965 0.002 270);
+  --color-text-soft: oklch(0.880 0.004 270);
+  --color-muted: oklch(0.640 0.010 265);
+  --color-faint: oklch(0.490 0.010 265);
 
-  --color-fire-high: oklch(0.66 0.22 25);
-  --color-fire-mid: oklch(0.78 0.18 70);
-  --color-vegetation: oklch(0.72 0.16 155);
-  --color-info: oklch(0.7 0.15 250);
-  --color-purple: oklch(0.7 0.18 290);
+  /* Accent único — Linear blue */
+  --color-accent: oklch(0.585 0.165 270);
+  --color-accent-strong: oklch(0.640 0.165 270);
+  --color-accent-soft: oklch(0.380 0.140 270);
+  --color-accent-fg: #ffffff;
+
+  /* Semânticas sóbrias — sem neon */
+  --color-success: oklch(0.700 0.130 155);
+  --color-warning: oklch(0.790 0.140 85);
+  --color-danger: oklch(0.640 0.180 25);
+
+  /* Aliases para legibilidade da base já existente */
+  --color-fire-high: oklch(0.640 0.180 25);
+  --color-fire-mid: oklch(0.790 0.140 85);
+  --color-vegetation: oklch(0.700 0.130 155);
+  --color-info: oklch(0.640 0.165 270);
+  --color-purple: oklch(0.640 0.110 290);
 
   --font-sans: 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
 
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 0 0 1px rgba(255, 255, 255, 0.01);
-  --shadow-elev: 0 8px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 0 1px var(--color-accent), 0 0 24px -4px oklch(0.72 0.18 50 / 0.35);
+  --shadow-card: 0 0 0 1px var(--color-line);
+  --shadow-elev: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px var(--color-line);
+  --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 0 0 1px var(--color-line-strong);
 }
 
 @layer base {
@@ -58,9 +72,7 @@
   }
 
   body {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.22 0.06 50 / 0.18), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 0%, oklch(0.22 0.06 290 / 0.12), transparent),
-      var(--color-bg);
+    background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -76,10 +88,9 @@
   *:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: 4px;
   }
 
-  /* Smooth scroll */
   html {
     scroll-behavior: smooth;
   }
@@ -90,70 +101,38 @@
     background: var(--color-panel);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
   }
 
   .surface-elev {
-    background: linear-gradient(180deg, var(--color-panel) 0%, var(--color-bg-elev) 100%);
+    background: var(--color-panel);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-elev);
   }
 
-  .glass {
-    background: oklch(0.182 0.02 270 / 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid oklch(0.32 0.026 270 / 0.6);
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-muted) 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-
-  .gradient-fire {
-    background: linear-gradient(135deg, oklch(0.78 0.18 70) 0%, oklch(0.66 0.22 25) 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-
+  /* Hover Linear-style: muda apenas a borda, não o fundo */
   .hover-lift {
-    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 200ms ease;
+    transition: border-color 160ms ease, color 160ms ease;
   }
 
   .hover-lift:hover {
-    transform: translateY(-1px);
     border-color: var(--color-line-strong);
-    box-shadow: var(--shadow-elev);
-  }
-
-  .grid-bg {
-    background-image:
-      linear-gradient(var(--color-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: -1px -1px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 80%);
   }
 }
 
-/* Leaflet dark theme */
+/* Leaflet dark theme — sóbrio */
 .leaflet-container {
   background: var(--color-bg);
   font-family: inherit;
 }
 
 .leaflet-control-attribution {
-  background: oklch(0.158 0.018 270 / 0.8) !important;
+  background: oklch(0.145 0.002 270 / 0.85) !important;
   color: var(--color-faint) !important;
   font-size: 10px !important;
-  border-radius: 6px 0 0 0 !important;
   padding: 2px 6px !important;
+  border: 1px solid var(--color-line) !important;
+  border-bottom: 0 !important;
+  border-right: 0 !important;
 }
 
 .leaflet-control-attribution a {
@@ -165,13 +144,14 @@
   background: var(--color-panel) !important;
   border-radius: var(--radius-md) !important;
   overflow: hidden;
+  box-shadow: none !important;
 }
 
 .leaflet-bar a {
   background: var(--color-panel) !important;
   color: var(--color-text) !important;
   border-color: var(--color-line) !important;
-  transition: background 150ms ease;
+  transition: background 120ms ease;
 }
 
 .leaflet-bar a:hover {
@@ -183,7 +163,7 @@
   color: var(--color-text) !important;
   border: 1px solid var(--color-line) !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-elev) !important;
+  box-shadow: var(--shadow-pop) !important;
 }
 
 .leaflet-popup-tip {
@@ -202,22 +182,7 @@
   padding: 6px 6px 0 0 !important;
 }
 
-/* Pulse animation for live markers */
-@keyframes marker-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 oklch(0.66 0.22 25 / 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 12px oklch(0.66 0.22 25 / 0);
-  }
-}
-
-.live-pulse {
-  animation: marker-pulse 1.8s ease-in-out infinite;
-}
-
-/* Pulse for the LIVE badge dot */
+/* Pulsing dot — somente na badge LIVE, com cor de danger sóbria */
 @keyframes badge-pulse {
   0%,
   100% {
@@ -234,28 +199,7 @@
   animation: badge-pulse 2s ease-in-out infinite;
 }
 
-/* Shimmer for skeletons */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--color-panel-2) 0%,
-    var(--color-panel-3) 50%,
-    var(--color-panel-2) 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-}
-
-/* Streaming text caret */
+/* Streaming caret no chat */
 @keyframes caret-blink {
   0%,
   50% {
@@ -273,13 +217,14 @@
   margin-left: 2px;
   animation: caret-blink 1s steps(2) infinite;
   color: var(--color-accent);
+  font-weight: 400;
 }
 
-/* Gentle fade-in for content blocks */
+/* Fade-up para entrada de bubbles do chat */
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(2px);
   }
   to {
     opacity: 1;
@@ -288,9 +233,10 @@
 }
 
 .fade-up {
-  animation: fade-up 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fade-up 200ms ease-out both;
 }
 
+/* Scrollbar sutil */
 .scrollbar-thin::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -315,14 +261,14 @@
   --normal-border: var(--color-line);
   --normal-text: var(--color-text);
   --success-bg: var(--color-panel);
-  --success-border: oklch(0.72 0.16 155 / 0.4);
-  --success-text: var(--color-vegetation);
+  --success-border: var(--color-line);
+  --success-text: var(--color-success);
   --error-bg: var(--color-panel);
-  --error-border: oklch(0.66 0.22 25 / 0.4);
-  --error-text: var(--color-fire-high);
+  --error-border: var(--color-line);
+  --error-text: var(--color-danger);
 }
 
-/* cmdk styles */
+/* cmdk styles — sóbrios */
 [cmdk-root] {
   background: var(--color-panel);
   border-radius: var(--radius-lg);
@@ -364,6 +310,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 8px 10px 4px;
+  font-weight: 510;
 }
 
 [cmdk-item] {
@@ -371,7 +318,7 @@
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 13px;
   color: var(--color-text-soft);
   cursor: pointer;
