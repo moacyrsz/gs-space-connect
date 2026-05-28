@@ -4,7 +4,7 @@ function Card({ className, ...props }) {
   return (
     <div
       className={cn(
-        'rounded-xl bg-(--color-surface) text-(--color-text) shadow-[var(--shadow-card)]',
+        'rounded-[10px] bg-(--color-surface) text-(--color-text) border border-(--color-line) shadow-[0_1px_2px_rgba(31,29,26,0.04)]',
         className,
       )}
       {...props}
@@ -14,13 +14,7 @@ function Card({ className, ...props }) {
 
 function CardHeader({ className, ...props }) {
   return (
-    <div
-      className={cn(
-        'flex flex-col gap-1 px-5 pt-5 pb-4',
-        className,
-      )}
-      {...props}
-    />
+    <div className={cn('flex flex-col gap-1 px-5 pt-5 pb-4', className)} {...props} />
   )
 }
 
@@ -28,10 +22,10 @@ function CardTitle({ className, ...props }) {
   return (
     <h3
       className={cn(
-        'text-[14px] font-medium leading-tight tracking-[-0.006em] text-(--color-text)',
+        'text-[14px] leading-tight tracking-[-0.005em] text-(--color-text)',
         className,
       )}
-      style={{ fontWeight: 510 }}
+      style={{ fontWeight: 500 }}
       {...props}
     />
   )

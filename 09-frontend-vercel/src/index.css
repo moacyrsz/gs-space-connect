@@ -2,49 +2,60 @@
 @import 'leaflet/dist/leaflet.css';
 
 /*
- * "Profundidade silenciosa" — paleta inspirada em Stripe Dashboard,
- * Vercel Observability e Datadog. Cada pixel justifica sua existência
- * por hierarquia tipográfica e luz, nunca por ornamento.
+ * Space Connect — Light Executive
+ *
+ * Filosofia: ar respirando, hierarquia por peso tipográfico (500 vs 400),
+ * accent monocromático terra-queimada como tinta de jornal.
+ *
+ * Referências aplicadas: Radix Sand (off-white quente), Linear (peso 500),
+ * Mercury (chumbo quente em vez de preto), Stripe (sombra microscópica),
+ * Vercel/Geist (Geist Sans/Mono), Tremor (KPI executivo), Notion (texto
+ * chumbo quente, hovers quase invisíveis).
  */
 
 @theme {
-  /* Surfaces em 3 níveis com elevação visível porém sutil */
-  --color-bg: oklch(0.145 0.012 260);
-  --color-bg-canvas: oklch(0.165 0.013 260);
-  --color-surface: oklch(0.195 0.014 258);
-  --color-surface-elevated: oklch(0.225 0.015 256);
-  --color-surface-overlay: oklch(0.255 0.016 254);
+  /* Surfaces — Sand off-white quente */
+  --color-bg: #fafaf7;
+  --color-bg-canvas: #fafaf7;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f5f4f1;
+  --color-surface-overlay: #efeeea;
 
-  --color-line: oklch(0.255 0.012 258 / 0.6);
-  --color-line-strong: oklch(0.32 0.014 256);
-  --color-line-strongest: oklch(0.4 0.015 256);
+  /* Borders — densidade fina */
+  --color-line: #e8e6e1;
+  --color-line-strong: #cfcec9;
+  --color-line-strongest: #b5b3ad;
 
-  --color-text: oklch(0.96 0.005 250);
-  --color-text-soft: oklch(0.86 0.007 250);
-  --color-muted: oklch(0.74 0.008 250);
-  --color-faint: oklch(0.56 0.01 250);
-  --color-ghost: oklch(0.42 0.012 250);
+  /* Texto — chumbo quente, nunca preto puro */
+  --color-text: #1f1d1a;
+  --color-text-soft: #2a2823;
+  --color-muted: #4a4843;
+  --color-faint: #82827c;
+  --color-ghost: #bcbbb5;
 
-  /* Accent azul espacial dessaturado — refinado, não neon */
-  --color-accent: oklch(0.72 0.15 215);
-  --color-accent-strong: oklch(0.78 0.16 215);
-  --color-accent-soft: oklch(0.72 0.15 215 / 0.12);
+  /* Accent — terra-queimada, tinta de jornal */
+  --color-accent: #b45309;
+  --color-accent-strong: #92400e;
+  --color-accent-soft: #fef3c7;
 
-  /* Semânticas refinadas (não bootstrap, não neon) */
-  --color-success: oklch(0.78 0.14 155);
-  --color-warning: oklch(0.82 0.15 75);
-  --color-danger: oklch(0.68 0.2 22);
+  /* Semânticas sóbrias */
+  --color-success: #2a7e3b;
+  --color-success-soft: #e9f6e9;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
 
-  /* Aliases legados */
+  /* Aliases legados (compatibilidade com componentes existentes) */
   --color-panel: var(--color-surface);
   --color-panel-2: var(--color-surface-elevated);
   --color-panel-3: var(--color-surface-overlay);
-  --color-bg-elev: var(--color-bg-canvas);
+  --color-bg-elev: var(--color-surface);
   --color-fire-high: var(--color-danger);
   --color-fire-mid: var(--color-warning);
   --color-vegetation: var(--color-success);
   --color-info: var(--color-accent);
-  --color-purple: oklch(0.7 0.16 290);
+  --color-purple: #6d28d9;
   --color-accent-fg: #ffffff;
 
   --font-sans:
@@ -55,26 +66,15 @@
     'Geist Mono', 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
 
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
 
-  /* Sombras compostas (Stripe-style — 3 camadas) */
-  --shadow-card:
-    0 0 0 1px var(--color-line-strong),
-    inset 0 1px 0 oklch(1 0 0 / 0.04);
-  --shadow-elev:
-    0 0 0 1px var(--color-line-strong),
-    inset 0 1px 0 oklch(1 0 0 / 0.04),
-    0 1px 2px oklch(0 0 0 / 0.4),
-    0 8px 24px -8px oklch(0 0 0 / 0.5);
-  --shadow-pop:
-    0 0 0 1px var(--color-line-strongest),
-    0 1px 2px oklch(0 0 0 / 0.5),
-    0 16px 48px -12px oklch(0 0 0 / 0.6);
-  --shadow-accent:
-    0 0 0 1px oklch(0.72 0.15 215 / 0.4),
-    0 0 24px -4px oklch(0.72 0.15 215 / 0.2);
+  /* Sombras microscópicas Stripe-style — profundidade vem do matiz, não da sombra */
+  --shadow-card: 0 1px 2px rgba(31, 29, 26, 0.04);
+  --shadow-card-hover: 0 2px 4px rgba(31, 29, 26, 0.05);
+  --shadow-elev: 0 4px 12px rgba(31, 29, 26, 0.06);
+  --shadow-pop: 0 8px 24px rgba(31, 29, 26, 0.08);
 }
 
 @layer base {
@@ -91,20 +91,14 @@
   }
 
   html {
-    color-scheme: dark;
-    /* Tipografia: tabular-nums, stylistic sets, kerning */
+    color-scheme: light;
+    /* Tipografia executiva: tabular-nums, stylistic sets, kerning, geometricPrecision */
     font-feature-settings: 'cv11', 'ss01', 'ss03', 'tnum';
     text-rendering: geometricPrecision;
   }
 
   body {
-    background:
-      radial-gradient(
-        ellipse 90% 40% at 50% -10%,
-        oklch(0.72 0.15 215 / 0.06),
-        transparent 60%
-      ),
-      var(--color-bg);
+    background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -112,26 +106,9 @@
     letter-spacing: -0.005em;
   }
 
-  /* Camada de "grain" sutil — quebra a chapadez do dark mode */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.025;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' /%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
-  }
-
-  #root {
-    position: relative;
-    z-index: 1;
-  }
-
   ::selection {
     background: var(--color-accent-soft);
-    color: var(--color-text);
+    color: var(--color-accent-strong);
   }
 
   *:focus-visible {
@@ -148,61 +125,72 @@
 @layer components {
   .surface {
     background: var(--color-surface);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
   }
 
   .surface-elevated {
     background: var(--color-surface);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-elev);
   }
 
   .surface-pop {
-    background: var(--color-surface-overlay);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-pop);
   }
 
-  /* Hover Stripe-style: border vira accent e ganha glow leve */
+  /* Hover: muda border + sombra micro, NÃO escurece bg (Linear-style) */
   .hover-lift {
     transition:
-      box-shadow 220ms cubic-bezier(0.32, 0.72, 0, 1),
-      background-color 220ms cubic-bezier(0.32, 0.72, 0, 1);
+      border-color 180ms cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 180ms cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .hover-lift:hover {
-    box-shadow:
-      0 0 0 1px var(--color-line-strongest),
-      inset 0 1px 0 oklch(1 0 0 / 0.05),
-      0 1px 2px oklch(0 0 0 / 0.4),
-      0 8px 24px -8px oklch(0 0 0 / 0.5);
+    border-color: var(--color-line-strong);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .text-balance {
     text-wrap: balance;
   }
 
+  /* Numbers tabulares com letter-spacing apertado (Tremor/Bloomberg) */
   .number-display {
     font-feature-settings: 'tnum', 'ss01';
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.024em;
+    letter-spacing: -0.018em;
   }
 
+  /* Headings com peso 500 (Linear/Mercury), não 700 */
   .heading-display {
     letter-spacing: -0.02em;
-    font-weight: 580;
+    font-weight: 500;
+  }
+
+  /* Caption uppercase com tracking executivo (Tremor) */
+  .label-caps {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-faint);
   }
 }
 
-/* Leaflet dark theme — refinado */
+/* Leaflet light theme — mapa como continuação do canvas */
 .leaflet-container {
-  background: var(--color-bg);
+  background: var(--color-surface-elevated);
   font-family: inherit;
 }
 
 .leaflet-control-attribution {
-  background: oklch(0.145 0.012 260 / 0.85) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   color: var(--color-faint) !important;
   font-size: 10px !important;
   padding: 3px 8px !important;
@@ -217,11 +205,11 @@
 }
 
 .leaflet-bar {
-  border: 1px solid var(--color-line-strong) !important;
+  border: 1px solid var(--color-line) !important;
   background: var(--color-surface) !important;
   border-radius: var(--radius-md) !important;
   overflow: hidden;
-  box-shadow: var(--shadow-elev) !important;
+  box-shadow: var(--shadow-card) !important;
 }
 
 .leaflet-bar a {
@@ -237,16 +225,16 @@
 }
 
 .leaflet-popup-content-wrapper {
-  background: var(--color-surface-overlay) !important;
+  background: var(--color-surface) !important;
   color: var(--color-text) !important;
-  border: 1px solid var(--color-line-strong) !important;
+  border: 1px solid var(--color-line) !important;
   border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-pop) !important;
 }
 
 .leaflet-popup-tip {
-  background: var(--color-surface-overlay) !important;
-  border: 1px solid var(--color-line-strong) !important;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-line) !important;
 }
 
 .leaflet-popup-content {
@@ -260,7 +248,7 @@
   padding: 8px 8px 0 0 !important;
 }
 
-/* LIVE pulse — sutil, não pirotecnia */
+/* LIVE pulse — refinado, sem pirotecnia */
 @keyframes badge-pulse {
   0%,
   100% {
@@ -298,7 +286,7 @@
   font-weight: 400;
 }
 
-/* Fade-up para entrada de bubbles do chat */
+/* Fade-up — easeOutExpo */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -314,17 +302,7 @@
   animation: fade-up 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Sparkline draw-in — efeito Stripe */
-@keyframes spark-draw {
-  from {
-    stroke-dashoffset: 200;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* Number tween para KPIs */
+/* Number tick-up — easeOutQuint, 600ms */
 @keyframes number-up {
   from {
     opacity: 0.4;
@@ -337,7 +315,28 @@
 }
 
 .number-tween {
-  animation: number-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: number-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Skeleton shimmer linear (não curva, mais executivo) */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-elevated) 0%,
+    var(--color-surface-overlay) 50%,
+    var(--color-surface-elevated) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 1.6s infinite linear;
 }
 
 /* Scrollbar refinada */
@@ -363,22 +362,22 @@
   background: transparent;
 }
 
-/* Sonner toast theming refinado */
+/* Sonner toast — light theming */
 [data-sonner-toaster][data-theme] {
-  --normal-bg: var(--color-surface-overlay);
-  --normal-border: var(--color-line-strong);
+  --normal-bg: var(--color-surface);
+  --normal-border: var(--color-line);
   --normal-text: var(--color-text);
-  --success-bg: var(--color-surface-overlay);
-  --success-border: oklch(0.78 0.14 155 / 0.4);
+  --success-bg: var(--color-surface);
+  --success-border: var(--color-line);
   --success-text: var(--color-success);
-  --error-bg: var(--color-surface-overlay);
-  --error-border: oklch(0.68 0.2 22 / 0.4);
+  --error-bg: var(--color-surface);
+  --error-border: var(--color-line);
   --error-text: var(--color-danger);
 }
 
-/* cmdk styles */
+/* cmdk — light styling */
 [cmdk-root] {
-  background: var(--color-surface-overlay);
+  background: var(--color-surface);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -387,7 +386,7 @@
   width: 100%;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-line-strong);
+  border-bottom: 1px solid var(--color-line);
   color: var(--color-text);
   font-family: inherit;
   font-size: 14px;
@@ -418,7 +417,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 10px 12px 6px;
-  font-weight: 510;
+  font-weight: 500;
 }
 
 [cmdk-item] {
@@ -436,4 +435,10 @@
 [cmdk-item][data-selected='true'] {
   background: var(--color-surface-elevated);
   color: var(--color-text);
+}
+
+/* Magnetic hover utility — botão segue cursor levemente (CSS-only baseline) */
+.magnetic {
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
 }

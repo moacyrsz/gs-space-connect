@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 function RangeFilter({ value, onChange }) {
   return (
-    <div className="inline-flex items-center rounded-md border border-(--color-line) p-0.5">
+    <div className="inline-flex items-center rounded-md border border-(--color-line) bg-(--color-surface) p-0.5">
       {ranges.map((r) => (
         <button
           key={r.id}
@@ -12,7 +12,7 @@ function RangeFilter({ value, onChange }) {
           className={cn(
             'rounded px-2.5 py-1 text-[11px] font-medium transition-colors',
             value === r.id
-              ? 'bg-(--color-panel-2) text-(--color-text)'
+              ? 'bg-(--color-surface-elevated) text-(--color-text)'
               : 'text-(--color-muted) hover:text-(--color-text)',
           )}
         >

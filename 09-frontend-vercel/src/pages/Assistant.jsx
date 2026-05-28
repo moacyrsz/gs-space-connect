@@ -19,7 +19,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import ChatPanel from '@/components/chat/ChatPanel'
 import { useChat } from '@/components/chat/useChat'
 
@@ -85,35 +84,33 @@ function Assistant() {
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
       <div className="xl:col-span-8 flex flex-col gap-4">
         <div className="space-y-1.5">
-          <p className="text-[11px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
-            Camada de IA · NLP + GenAI
-          </p>
-          <h1
-            className="heading-display text-[30px] leading-[1.1] text-(--color-text)"
-            style={{ fontWeight: 580 }}
-          >
+          <p className="label-caps">Camada de IA · NLP + GenAI</p>
+          <h1 className="heading-display text-[30px] leading-[1.1] text-(--color-text)">
             Assistente Técnico
           </h1>
           <p className="text-[13px] text-(--color-muted) max-w-2xl leading-relaxed text-balance">
             Respostas geradas em tempo real por{' '}
-            <strong className="text-(--color-text)" style={{ fontWeight: 510 }}>
+            <strong
+              className="text-(--color-text)"
+              style={{ fontWeight: 600 }}
+            >
               Gemini 2.5 Flash
             </strong>{' '}
-            com prompt sistêmico especializado na plataforma Space Connect, em normas
-            de eficiência hídrica e energética e em sua aplicação a infraestrutura
-            espacial.
+            com prompt sistêmico especializado na plataforma Space Connect, em
+            normas de eficiência hídrica e energética e em sua aplicação a
+            infraestrutura espacial.
           </p>
         </div>
 
         <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between !pb-3">
+          <CardHeader className="flex flex-row items-center justify-between !pb-3 !border-b !border-(--color-line)">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-(--color-accent) to-(--color-accent-strong) text-white shadow-[inset_0_1px_0_oklch(1_0_0_/_0.2),0_0_0_1px_oklch(0.78_0.16_215_/_0.4),0_0_16px_-4px_oklch(0.72_0.15_215_/_0.4)]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-(--color-accent) text-white">
                 <Bot className="h-3.5 w-3.5" strokeWidth={2} />
               </div>
               <div>
                 <CardTitle>Conversa</CardTitle>
-                <CardDescription className="font-mono">
+                <CardDescription style={{ fontFamily: 'var(--font-mono)' }}>
                   {history.filter((m) => m.role !== 'system').length} mensagens · gemini-2.5-flash
                 </CardDescription>
               </div>
@@ -124,7 +121,7 @@ function Assistant() {
               onClick={reset}
               disabled={pending || history.length <= 1}
             >
-              <RotateCcw className="h-3 w-3" strokeWidth={2} />
+              <RotateCcw className="h-3 w-3" strokeWidth={1.75} />
               Limpar
             </Button>
           </CardHeader>
@@ -147,7 +144,7 @@ function Assistant() {
         <Card className="hover-lift">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-(--color-accent)" strokeWidth={1.75} />
+              <Sparkles className="h-3.5 w-3.5 text-(--color-accent)" strokeWidth={1.5} />
               Atalhos
             </CardTitle>
             <CardDescription>Tópicos populares</CardDescription>
@@ -159,15 +156,15 @@ function Assistant() {
                 type="button"
                 onClick={() => handleSend(qa.q)}
                 disabled={pending}
-                className="group flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1px_var(--color-line-strong),inset_0_1px_0_oklch(1_0_0_/_0.03)] hover:bg-(--color-surface-elevated)/40 disabled:opacity-50"
+                className="group flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] border border-(--color-line) bg-(--color-surface) hover:border-(--color-line-strong) hover:bg-(--color-surface-elevated) disabled:opacity-50"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-(--color-accent)/10 text-(--color-accent) shadow-[inset_0_0_0_1px_oklch(0.72_0.15_215_/_0.25)]">
-                  <qa.icon className="h-3 w-3" strokeWidth={1.75} />
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-(--color-accent-soft) text-(--color-accent) border border-(--color-accent)/20">
+                  <qa.icon className="h-3 w-3" strokeWidth={1.5} />
                 </span>
                 <div className="flex-1 min-w-0">
                   <p
                     className="text-[12.5px] text-(--color-text) leading-tight tracking-[-0.005em]"
-                    style={{ fontWeight: 510 }}
+                    style={{ fontWeight: 500 }}
                   >
                     {qa.label}
                   </p>
@@ -183,7 +180,7 @@ function Assistant() {
         <Card className="hover-lift">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-3.5 w-3.5 text-(--color-success)" strokeWidth={1.75} />
+              <BookOpen className="h-3.5 w-3.5 text-(--color-success)" strokeWidth={1.5} />
               Base de conhecimento
             </CardTitle>
             <CardDescription>Tópicos cobertos pelo prompt</CardDescription>
@@ -192,10 +189,15 @@ function Assistant() {
             {knowledgeBase.map((d) => (
               <div
                 key={d}
-                className="flex items-center gap-2 rounded-md px-2.5 py-1.5 shadow-[inset_0_0_0_1px_var(--color-line)]"
+                className="flex items-center gap-2 rounded-md px-2.5 py-1.5 border border-(--color-line) bg-(--color-surface)"
               >
-                <FileText className="h-3 w-3 text-(--color-faint) shrink-0" strokeWidth={1.75} />
-                <span className="text-[11.5px] text-(--color-text-soft) truncate">{d}</span>
+                <FileText
+                  className="h-3 w-3 text-(--color-faint) shrink-0"
+                  strokeWidth={1.5}
+                />
+                <span className="text-[11.5px] text-(--color-text-soft) truncate">
+                  {d}
+                </span>
               </div>
             ))}
             <p className="text-[11px] text-(--color-faint) mt-2 px-1 leading-relaxed">
