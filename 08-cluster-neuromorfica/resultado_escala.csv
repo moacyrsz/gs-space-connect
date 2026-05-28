@@ -1,0 +1,13 @@
+job,escala,amostras,epocas,energia_estimada_pJ,energia_estimada_J,decisao_infraestrutura
+A - Edge espacial simples,Protótipo didático,10000,20,1194000000.0,0.001194,Máquina local
+A - Edge espacial simples,Operação regional,200000,50,59700000000.0,0.059699999999999996,Workstation/GPU
+A - Edge espacial simples,Constelação global,10000000,100,5970000000000.0,5.97,Cluster
+A - Edge espacial simples,Missão massiva,100000000,200,119400000000000.0,119.39999999999999,Supercomputador ou revisão arquitetural/neuromórfica
+B - Operação Terra-espaço,Protótipo didático,10000,20,1984000000.0,0.001984,Máquina local
+B - Operação Terra-espaço,Operação regional,200000,50,99200000000.0,0.0992,Workstation/GPU
+B - Operação Terra-espaço,Constelação global,10000000,100,9920000000000.0,9.92,Cluster
+B - Operação Terra-espaço,Missão massiva,100000000,200,198400000000000.0,198.4,Supercomputador ou revisão arquitetural/neuromórfica
+C - Escala ampliada,Protótipo didático,10000,20,2774000000.0,0.002774,Máquina local
+C - Escala ampliada,Operação regional,200000,50,138700000000.0,0.1387,Workstation/GPU
+C - Escala ampliada,Constelação global,10000000,100,13870000000000.0,13.87,Cluster
+C - Escala ampliada,Missão massiva,100000000,200,277400000000000.0,277.4,Supercomputador ou revisão arquitetural/neuromórfica
