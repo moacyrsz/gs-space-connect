@@ -1,23 +1,24 @@
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
+// Pílulas executivas (Notion/Tremor): bg-soft + text-strong da mesma família,
+// border 1px da cor accent — nunca cor saturada como bg.
 const badgeVariants = cva(
   'inline-flex items-center gap-1 rounded-md px-2 h-[22px] text-[11px] font-medium transition-colors leading-none tracking-[-0.005em]',
   {
     variants: {
       variant: {
         default:
-          'bg-(--color-surface-elevated) text-(--color-text-soft) shadow-[inset_0_0_0_1px_var(--color-line-strong)]',
+          'bg-(--color-surface-elevated) text-(--color-text-soft) border border-(--color-line)',
         high:
-          'bg-(--color-danger)/10 text-(--color-danger) shadow-[inset_0_0_0_1px_oklch(0.68_0.20_22_/_0.3)]',
+          'bg-(--color-danger-soft) text-(--color-danger) border border-(--color-danger)/20',
         medium:
-          'bg-(--color-warning)/10 text-(--color-warning) shadow-[inset_0_0_0_1px_oklch(0.82_0.15_75_/_0.3)]',
+          'bg-(--color-warning-soft) text-(--color-warning) border border-(--color-warning)/20',
         low:
-          'bg-(--color-success)/10 text-(--color-success) shadow-[inset_0_0_0_1px_oklch(0.78_0.14_155_/_0.3)]',
-        outline:
-          'text-(--color-muted) shadow-[inset_0_0_0_1px_var(--color-line-strong)]',
+          'bg-(--color-success-soft) text-(--color-success) border border-(--color-success)/20',
+        outline: 'text-(--color-muted) border border-(--color-line)',
         accent:
-          'bg-(--color-accent)/10 text-(--color-accent) shadow-[inset_0_0_0_1px_oklch(0.72_0.15_215_/_0.3)]',
+          'bg-(--color-accent-soft) text-(--color-accent) border border-(--color-accent)/20',
       },
     },
     defaultVariants: { variant: 'default' },

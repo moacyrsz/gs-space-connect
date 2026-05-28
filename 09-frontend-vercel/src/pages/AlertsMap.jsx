@@ -12,6 +12,9 @@ import {
   Crosshair,
   Filter,
   Bell,
+  Mountain,
+  Thermometer,
+  Sparkles,
 } from 'lucide-react'
 import {
   Card,
@@ -25,18 +28,51 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import AlertCard from '@/components/AlertCard'
 import BiomeFilter from '@/components/BiomeFilter'
-import { initialAlerts, sourceColors, sourceLabels } from '@/data/mocks'
+import { initialAlerts, sourceLabels } from '@/data/mocks'
 import { cn } from '@/lib/utils'
 
 const severityRadius = { high: 12, medium: 9, low: 6 }
 const severityColor = {
-  high: 'oklch(0.640 0.180 25)',
-  medium: 'oklch(0.790 0.140 85)',
-  low: 'oklch(0.700 0.130 155)',
+  high: '#B91C1C',
+  medium: '#B45309',
+  low: '#2A7E3B',
 }
 const severityCopy = { high: 'Crítico', medium: 'Médio', low: 'Info' }
 
 const sourceIcons = { visao: Flame, iot: Cpu, rpa: Workflow }
+const sourceColorsLight = {
+  visao: '#B45309',
+  iot: '#0E7490',
+  rpa: '#7C3AED',
+}
+
+// Tiles light alternativos
+const tileLayers = {
+  voyager: {
+    id: 'voyager',
+    label: 'Padrão',
+    icon: Mountain,
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  },
+  positron: {
+    id: 'positron',
+    label: 'Minimal',
+    icon: Sparkles,
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  },
+  terrain: {
+    id: 'terrain',
+    label: 'Térmico',
+    icon: Thermometer,
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution:
+      '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> · &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+  },
+}
 
 function FlyTo({ coords }) {
   const map = useMap()
@@ -59,6 +95,7 @@ function AlertsMap() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(initialAlerts[0])
   const [flyTarget, setFlyTarget] = useState(null)
+  const [tile, setTile] = useState('voyager')
 
   useEffect(() => {
     const next = new URLSearchParams()
@@ -73,7 +110,11 @@ function AlertsMap() {
       if (biomeFilter && a.biome !== biomeFilter) return false
       if (!severityFilter.has(a.severity)) return false
       if (!sourceFilter.has(a.source)) return false
-      if (q && !a.region.toLowerCase().includes(q) && !a.message.toLowerCase().includes(q))
+      if (
+        q &&
+        !a.region.toLowerCase().includes(q) &&
+        !a.message.toLowerCase().includes(q)
+      )
         return false
       return true
     })
@@ -118,23 +159,20 @@ function AlertsMap() {
     })
   }
 
+  const currentTile = tileLayers[tile]
+
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-1.5">
-          <p className="text-[11px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
-            Geoespacial
-          </p>
-          <h1
-            className="heading-display text-[30px] leading-[1.1] text-(--color-text)"
-            style={{ fontWeight: 580 }}
-          >
+          <p className="label-caps">Geoespacial</p>
+          <h1 className="heading-display text-[30px] leading-[1.1] text-(--color-text)">
             Mapa de Alertas
           </h1>
           <p className="text-[13px] text-(--color-muted) max-w-2xl leading-relaxed">
-            Geolocalização dos alertas ativos sobre tile dark CARTO. Marcadores
-            dimensionados por severidade.
+            Geolocalização dos alertas ativos sobre tile vetorial CARTO.
+            Marcadores dimensionados por severidade.
           </p>
         </div>
         <div className="relative w-full lg:w-72">
@@ -169,8 +207,8 @@ function AlertsMap() {
       <div className="flex flex-col gap-2.5">
         <BiomeFilter value={biomeFilter} onChange={setBiomeFilter} />
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-(--color-faint) font-medium mr-1">
-            <Filter className="h-3 w-3" /> Severidade
+          <span className="label-caps mr-1 inline-flex items-center gap-1.5">
+            <Filter className="h-3 w-3" strokeWidth={1.5} /> Severidade
           </span>
           {['high', 'medium', 'low'].map((s) => (
             <button
@@ -180,8 +218,8 @@ function AlertsMap() {
               className={cn(
                 'flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors',
                 severityFilter.has(s)
-                  ? 'border-(--color-line-strong) bg-(--color-panel-2) text-(--color-text)'
-                  : 'border-(--color-line) bg-transparent text-(--color-faint) line-through',
+                  ? 'border-(--color-line-strong) bg-(--color-surface-elevated) text-(--color-text)'
+                  : 'border-(--color-line) bg-(--color-surface) text-(--color-faint) line-through',
               )}
             >
               <span
@@ -192,9 +230,7 @@ function AlertsMap() {
             </button>
           ))}
 
-          <span className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium ml-3 mr-1">
-            Origem
-          </span>
+          <span className="label-caps ml-3 mr-1">Origem</span>
           {['visao', 'iot', 'rpa'].map((s) => {
             const Icon = sourceIcons[s]
             const active = sourceFilter.has(s)
@@ -206,11 +242,11 @@ function AlertsMap() {
                 className={cn(
                   'flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors',
                   active
-                    ? 'border-(--color-line-strong) bg-(--color-panel-2) text-(--color-text)'
-                    : 'border-(--color-line) bg-transparent text-(--color-faint) line-through',
+                    ? 'border-(--color-line-strong) bg-(--color-surface-elevated) text-(--color-text)'
+                    : 'border-(--color-line) bg-(--color-surface) text-(--color-faint) line-through',
                 )}
               >
-                <Icon className="h-3 w-3" />
+                <Icon className="h-3 w-3" strokeWidth={1.5} />
                 {sourceLabels[s]}
               </button>
             )
@@ -220,7 +256,7 @@ function AlertsMap() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <Card className="lg:col-span-2 overflow-hidden p-0">
-          <CardContent className="p-0 relative">
+          <CardContent className="!p-0 relative">
             <div className="h-[560px] w-full">
               <MapContainer
                 center={[-14.235, -51.925]}
@@ -228,11 +264,12 @@ function AlertsMap() {
                 scrollWheelZoom
                 zoomControl={false}
                 className="h-full w-full"
-                style={{ background: 'var(--color-bg)' }}
+                style={{ background: 'var(--color-surface-elevated)' }}
               >
                 <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  key={currentTile.id}
+                  attribution={currentTile.attribution}
+                  url={currentTile.url}
                   subdomains={['a', 'b', 'c', 'd']}
                 />
                 <FlyTo coords={flyTarget} />
@@ -260,7 +297,7 @@ function AlertsMap() {
                         <p className="text-(--color-text-soft)">{a.message}</p>
                         {a.proba != null && (
                           <p className="text-(--color-muted)">
-                            probabilidade {Math.round(a.proba * 100)}%
+                            confiança {Math.round(a.proba * 100)}%
                           </p>
                         )}
                       </div>
@@ -269,19 +306,43 @@ function AlertsMap() {
                 ))}
               </MapContainer>
 
-              {/* Hint sutil */}
+              {/* Layer toggle (segmented control) — top-left */}
               <div className="absolute top-3 left-3 z-[400]">
-                <div className="rounded-md border border-(--color-line) bg-(--color-panel) px-2.5 py-1.5 text-[11px] text-(--color-muted) flex items-center gap-1.5">
-                  <Crosshair className="h-3 w-3" />
-                  Clique em um marcador para detalhes
+                <div className="inline-flex items-center rounded-md border border-(--color-line) bg-(--color-surface)/95 backdrop-blur p-0.5 shadow-[0_4px_12px_rgba(31,29,26,0.06)]">
+                  {Object.values(tileLayers).map((t) => {
+                    const active = tile === t.id
+                    const Icon = t.icon
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setTile(t.id)}
+                        className={cn(
+                          'flex items-center gap-1.5 rounded px-2.5 py-1 text-[11px] font-medium transition-colors',
+                          active
+                            ? 'bg-(--color-surface-elevated) text-(--color-text)'
+                            : 'text-(--color-muted) hover:text-(--color-text)',
+                        )}
+                      >
+                        <Icon className="h-3 w-3" strokeWidth={1.5} />
+                        {t.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Hint */}
+              <div className="absolute top-3 right-3 z-[400]">
+                <div className="rounded-md border border-(--color-line) bg-(--color-surface)/95 backdrop-blur px-2.5 py-1.5 text-[11px] text-(--color-muted) flex items-center gap-1.5 shadow-[0_4px_12px_rgba(31,29,26,0.06)]">
+                  <Crosshair className="h-3 w-3" strokeWidth={1.5} />
+                  Clique em um marcador
                 </div>
               </div>
 
               {/* Legenda */}
-              <div className="absolute bottom-3 left-3 z-[400] rounded-md border border-(--color-line) bg-(--color-panel) p-2.5 w-48">
-                <p className="text-[9px] uppercase tracking-wider text-(--color-faint) font-medium mb-1.5">
-                  Legenda
-                </p>
+              <div className="absolute bottom-3 left-3 z-[400] rounded-md border border-(--color-line) bg-(--color-surface)/95 backdrop-blur p-2.5 w-48 shadow-[0_4px_12px_rgba(31,29,26,0.06)]">
+                <p className="label-caps mb-1.5">Legenda</p>
                 <div className="flex flex-col gap-1 text-[11px]">
                   {['high', 'medium', 'low'].map((s) => (
                     <div key={s} className="flex items-center gap-2">
@@ -289,10 +350,11 @@ function AlertsMap() {
                         className="h-2 w-2 rounded-full shrink-0"
                         style={{ background: severityColor[s] }}
                       />
-                      <span className="text-(--color-muted)">
-                        {severityCopy[s]}
-                      </span>
-                      <span className="ml-auto text-(--color-faint) font-mono text-[10px]">
+                      <span className="text-(--color-muted)">{severityCopy[s]}</span>
+                      <span
+                        className="ml-auto text-(--color-faint) text-[10px]"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
                         {s === 'high' ? '>0.8' : s === 'medium' ? '0.5–0.8' : '<0.5'}
                       </span>
                     </div>
@@ -312,7 +374,10 @@ function AlertsMap() {
                   {severityCopy[selected.severity]}
                 </Badge>
               </div>
-              <CardDescription className="font-mono text-[10px]">
+              <CardDescription
+                className="text-[10px]"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
                 {selected.id}
               </CardDescription>
             </CardHeader>
@@ -321,7 +386,10 @@ function AlertsMap() {
               <DetailRow
                 label="Coordenadas"
                 value={
-                  <span className="font-mono text-[11px]">
+                  <span
+                    className="text-[11px]"
+                    style={{ fontFamily: 'var(--font-mono)' }}
+                  >
                     {selected.coords[0]}, {selected.coords[1]}
                   </span>
                 }
@@ -332,7 +400,7 @@ function AlertsMap() {
                   <span className="flex items-center gap-1.5">
                     <span
                       className="h-1.5 w-1.5 rounded-full"
-                      style={{ background: sourceColors[selected.source] }}
+                      style={{ background: sourceColorsLight[selected.source] }}
                     />
                     {sourceLabels[selected.source]}
                   </span>
@@ -341,16 +409,19 @@ function AlertsMap() {
               <DetailRow label="Mensagem" value={selected.message} />
               {selected.proba != null && (
                 <DetailRow
-                  label="Probabilidade"
+                  label="Confiança"
                   value={
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 h-1 rounded-full bg-(--color-panel-2)">
+                      <div className="flex-1 h-1 rounded-full bg-(--color-surface-elevated) overflow-hidden">
                         <div
                           className="h-full rounded-full bg-(--color-accent)"
                           style={{ width: `${Math.round(selected.proba * 100)}%` }}
                         />
                       </div>
-                      <span className="text-[11px] tabular-nums">
+                      <span
+                        className="text-[11px] tabular-nums"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
                         {Math.round(selected.proba * 100)}%
                       </span>
                     </div>
@@ -359,7 +430,7 @@ function AlertsMap() {
               )}
               <div className="flex gap-2 pt-1">
                 <Button onClick={dispatch} size="sm" className="flex-1">
-                  <Bell className="h-3 w-3" />
+                  <Bell className="h-3 w-3" strokeWidth={1.75} />
                   Acionar equipe
                 </Button>
                 <Button
@@ -367,7 +438,7 @@ function AlertsMap() {
                   size="sm"
                   onClick={() => setFlyTarget([...selected.coords])}
                 >
-                  <Crosshair className="h-3 w-3" />
+                  <Crosshair className="h-3 w-3" strokeWidth={1.5} />
                 </Button>
               </div>
             </CardContent>
@@ -377,7 +448,7 @@ function AlertsMap() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Lista de alertas</span>
-                <Badge variant="outline" className="font-mono">
+                <Badge variant="outline" style={{ fontFamily: 'var(--font-mono)' }}>
                   {filtered.length}
                 </Badge>
               </CardTitle>
@@ -390,7 +461,10 @@ function AlertsMap() {
                 ))}
                 {filtered.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-6 text-center">
-                    <Layers className="h-7 w-7 text-(--color-faint) mb-1.5" />
+                    <Layers
+                      className="h-7 w-7 text-(--color-faint) mb-1.5"
+                      strokeWidth={1.25}
+                    />
                     <p className="text-[12px] text-(--color-muted)">
                       Nada encontrado.
                     </p>
@@ -410,10 +484,10 @@ function AlertsMap() {
 
 function StatPill({ label, value, variant = 'default' }) {
   const ringStyles = {
-    default: 'shadow-[inset_0_0_0_1px_var(--color-line-strong),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
-    high: 'shadow-[inset_0_0_0_1px_oklch(0.68_0.20_22_/_0.4),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
-    medium: 'shadow-[inset_0_0_0_1px_oklch(0.82_0.15_75_/_0.4),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
-    low: 'shadow-[inset_0_0_0_1px_oklch(0.78_0.14_155_/_0.4),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
+    default: 'border-(--color-line) bg-(--color-surface)',
+    high: 'border-(--color-danger)/30 bg-(--color-danger-soft)',
+    medium: 'border-(--color-warning)/30 bg-(--color-warning-soft)',
+    low: 'border-(--color-success)/30 bg-(--color-success-soft)',
   }
   const valueColors = {
     default: 'text-(--color-text)',
@@ -422,16 +496,14 @@ function StatPill({ label, value, variant = 'default' }) {
     low: 'text-(--color-success)',
   }
   return (
-    <div className={cn('rounded-lg px-4 py-3 hover-lift', ringStyles[variant])}>
-      <p className="text-[10px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
-        {label}
-      </p>
+    <div className={cn('rounded-md px-4 py-3 border hover-lift', ringStyles[variant])}>
+      <p className="label-caps">{label}</p>
       <p
         className={cn(
-          'text-[24px] tabular-nums tracking-[-0.018em] mt-1',
+          'number-display text-[24px] mt-1',
           valueColors[variant],
         )}
-        style={{ fontWeight: 538 }}
+        style={{ fontWeight: 500 }}
       >
         {value}
       </p>
@@ -442,9 +514,7 @@ function StatPill({ label, value, variant = 'default' }) {
 function DetailRow({ label, value }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium mb-0.5">
-        {label}
-      </p>
+      <p className="label-caps mb-0.5">{label}</p>
       <div className="text-[12px] text-(--color-text)">{value}</div>
     </div>
   )
