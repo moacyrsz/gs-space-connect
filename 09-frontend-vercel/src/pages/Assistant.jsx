@@ -39,10 +39,15 @@ const introMessage = {
   id: 'intro',
   role: 'assistant',
   content:
-    'Olá. Sou o assistente técnico da plataforma **Space Connect**. Posso ajudar com normas de eficiência hídrica e energética para edifícios verdes — *LEED v4.1, AQUA-HQE, BREEAM, ASHRAE 90.1, NBR 15527, NBR 16401-1* — e com a aplicabilidade dessas referências a estações remotas e missões espaciais. O que gostaria de saber?',
+    'Olá. Sou o assistente técnico da plataforma **Space Connect** — projeto integrador da Global Solution 2026.1 da FIAP. Posso responder sobre:\n\n- a própria plataforma e como suas 9 disciplinas se conectam (Visão Computacional, IoT, Computação Quântica, RPA, GenAI, Neuromórfica, Front-end, Governança e a camada de NLP que é onde estou agora);\n- normas de eficiência hídrica e energética para edifícios verdes (*NBR 15527, NBR 16401-1, ASHRAE 90.1, LEED v4.1, AQUA-HQE, BREEAM, ISO 50001*);\n- aplicação dessas práticas a infraestrutura espacial — estações remotas, missões orbitais, sistemas ECLSS.\n\nO que gostaria de saber?',
 }
 
 const quickActions = [
+  {
+    icon: Sparkles,
+    label: 'Sobre a plataforma',
+    q: 'Explique o que é a plataforma Space Connect, qual o cenário escolhido e como ela cobre as 9 disciplinas da GS 2026.1.',
+  },
   {
     icon: Leaf,
     label: 'Eficiência hídrica',
@@ -55,20 +60,15 @@ const quickActions = [
   },
   {
     icon: Award,
-    label: 'Certificações',
-    q: 'Que critérios LEED v4.1 são realisticamente alcançáveis em uma estação remota?',
-  },
-  {
-    icon: Database,
-    label: 'Net Zero',
-    q: 'O conceito de Net Zero Energy se aplica a missões espaciais? O que precisa adaptar?',
+    label: 'Net Zero e ECLSS',
+    q: 'O conceito de Net Zero Energy se aplica a missões espaciais e como ele dialoga com sistemas ECLSS?',
   },
 ]
 
 const promptSuggestions = [
+  'O que é a plataforma Space Connect?',
+  'Como as 9 disciplinas da GS se conectam?',
   'Compare LEED, AQUA-HQE e BREEAM',
-  'Como medir eficiência hídrica em uma estação?',
-  'Qual a diferença entre NBR 15575 e ASHRAE 90.1?',
   'Princípios ECLSS aplicáveis a edifícios na Terra',
 ]
 
