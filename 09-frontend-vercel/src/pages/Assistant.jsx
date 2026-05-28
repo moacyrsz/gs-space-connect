@@ -1,24 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { toast } from 'sonner'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import {
   Bot,
   FileText,
-  Send,
   Sparkles,
-  User,
-  Copy,
-  Check,
   RotateCcw,
   Database,
   BookOpen,
   Leaf,
   Zap,
   Award,
-  AlertTriangle,
-  Square,
 } from 'lucide-react'
 import {
   Card,
@@ -27,20 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Separator } from '@/components/ui/separator'
-import { streamChat } from '@/lib/chat'
-import { cn } from '@/lib/utils'
-
-const introMessage = {
-  id: 'intro',
-  role: 'assistant',
-  content:
-    'Olá. Sou o assistente técnico da plataforma **Space Connect** — projeto integrador da Global Solution 2026.1 da FIAP. Posso responder sobre:\n\n- a própria plataforma e como suas 9 disciplinas se conectam (Visão Computacional, IoT, Computação Quântica, RPA, GenAI, Neuromórfica, Front-end, Governança e a camada de NLP que é onde estou agora);\n- normas de eficiência hídrica e energética para edifícios verdes (*NBR 15527, NBR 16401-1, ASHRAE 90.1, LEED v4.1, AQUA-HQE, BREEAM, ISO 50001*);\n- aplicação dessas práticas a infraestrutura espacial — estações remotas, missões orbitais, sistemas ECLSS.\n\nO que gostaria de saber?',
-}
+import ChatPanel from '@/components/chat/ChatPanel'
+import { useChat } from '@/components/chat/useChat'
 
 const quickActions = [
   {
@@ -72,118 +53,32 @@ const promptSuggestions = [
   'Princípios ECLSS aplicáveis a edifícios na Terra',
 ]
 
+const knowledgeBase = [
+  'NBR 15527:2019 — aproveitamento de água da chuva',
+  'NBR 16401-1:2008 — climatização e qualidade do ar',
+  'NBR 15575:2013 — edificações habitacionais',
+  'ASHRAE 90.1-2019 — Energy Standard',
+  'LEED v4.1 — Building Design and Construction',
+  'AQUA-HQE — processo brasileiro',
+  'BREEAM International New Construction',
+  'ISO 50001:2018 — gestão de energia',
+  'NZEB — definições DOE/NREL',
+  'ECLSS — Environmental Control and Life Support Systems',
+]
+
 function Assistant() {
   const [params] = useSearchParams()
   const [input, setInput] = useState('')
-  const [history, setHistory] = useState([introMessage])
-  const [pending, setPending] = useState(false)
-  const scrollRef = useRef(null)
-  const abortRef = useRef(null)
+  const { history, pending, send, stop, reset } = useChat()
 
   useEffect(() => {
     const q = params.get('q')
     if (q) setInput(q.replace(/\+/g, ' '))
   }, [params])
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [history, pending])
-
-  useEffect(() => {
-    return () => abortRef.current?.abort()
-  }, [])
-
-  const send = async (text) => {
-    const q = text.trim()
-    if (!q || pending) return
-
-    const userMsg = { id: Date.now(), role: 'user', content: q }
-    const assistantId = Date.now() + 1
-    const assistantSeed = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-      streaming: true,
-    }
-
-    // Snapshot do histórico que será enviado à API (somente user/assistant
-    // já existentes, mais a nova pergunta — sem o intro fixo nem a seed vazia).
-    const apiMessages = [
-      ...history
-        .filter((m) => m.id !== 'intro' && (m.role === 'user' || m.role === 'assistant'))
-        .map(({ role, content }) => ({ role, content })),
-      { role: 'user', content: q },
-    ]
-
-    setHistory((h) => [...h, userMsg, assistantSeed])
+  const handleSend = (text) => {
+    send(text)
     setInput('')
-    setPending(true)
-
-    const controller = new AbortController()
-    abortRef.current = controller
-
-    await streamChat({
-      messages: apiMessages,
-      signal: controller.signal,
-      onDelta: (delta) => {
-        setHistory((h) =>
-          h.map((m) =>
-            m.id === assistantId ? { ...m, content: m.content + delta } : m,
-          ),
-        )
-      },
-      onDone: () => {
-        setHistory((h) =>
-          h.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)),
-        )
-        setPending(false)
-        abortRef.current = null
-      },
-      onError: (msg, payload) => {
-        setHistory((h) =>
-          h.map((m) =>
-            m.id === assistantId
-              ? {
-                  ...m,
-                  streaming: false,
-                  error: msg,
-                  content: m.content || '',
-                }
-              : m,
-          ),
-        )
-        setPending(false)
-        abortRef.current = null
-        if (payload?.status === 401 || payload?.status === 403) {
-          toast.error('Chave do Gemini inválida ou ausente', {
-            description: 'Configure GEMINI_API_KEY na Vercel.',
-          })
-        } else if (payload?.status === 429) {
-          toast.error('Limite de uso atingido', {
-            description: 'Free tier: 15 req/min, 1.500 req/dia. Aguarde alguns minutos.',
-          })
-        } else {
-          toast.error('Falha no assistente', { description: msg })
-        }
-      },
-    })
-  }
-
-  const stop = () => {
-    abortRef.current?.abort()
-    abortRef.current = null
-    setHistory((h) =>
-      h.map((m) => (m.streaming ? { ...m, streaming: false } : m)),
-    )
-    setPending(false)
-  }
-
-  const reset = () => {
-    if (pending) return
-    setHistory([introMessage])
-    toast.success('Conversa reiniciada')
   }
 
   return (
@@ -200,18 +95,21 @@ function Assistant() {
             Assistente Técnico
           </h1>
           <p className="text-[13px] text-(--color-muted) max-w-2xl leading-relaxed text-balance">
-            Respostas geradas em tempo real por <strong className="text-(--color-text)" style={{ fontWeight: 510 }}>Gemini 2.5 Flash</strong> com
-            prompt sistêmico especializado na plataforma Space Connect, em
-            normas de eficiência hídrica e energética e em sua aplicação a
-            infraestrutura espacial.
+            Respostas geradas em tempo real por{' '}
+            <strong className="text-(--color-text)" style={{ fontWeight: 510 }}>
+              Gemini 2.5 Flash
+            </strong>{' '}
+            com prompt sistêmico especializado na plataforma Space Connect, em normas
+            de eficiência hídrica e energética e em sua aplicação a infraestrutura
+            espacial.
           </p>
         </div>
 
-        <Card className="hover-lift overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between py-3">
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between !pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md border border-(--color-line) bg-(--color-panel-2) text-(--color-accent)">
-                <Bot className="h-3.5 w-3.5" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-(--color-accent) to-(--color-accent-strong) text-white shadow-[inset_0_1px_0_oklch(1_0_0_/_0.2),0_0_0_1px_oklch(0.78_0.16_215_/_0.4),0_0_16px_-4px_oklch(0.72_0.15_215_/_0.4)]">
+                <Bot className="h-3.5 w-3.5" strokeWidth={2} />
               </div>
               <div>
                 <CardTitle>Conversa</CardTitle>
@@ -226,63 +124,21 @@ function Assistant() {
               onClick={reset}
               disabled={pending || history.length <= 1}
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3 w-3" strokeWidth={2} />
               Limpar
             </Button>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3 p-0">
-            <div
-              ref={scrollRef}
-              className="h-[480px] overflow-y-auto px-5 py-4 scrollbar-thin flex flex-col gap-4"
-            >
-              {history.map((m) => (
-                <Message key={m.id} message={m} />
-              ))}
-            </div>
-
-            <Separator />
-
-            <div className="px-5 py-4">
-              <form
-                className="flex items-center gap-2"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  send(input)
-                }}
-              >
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Pergunte sobre NBR 15527, ASHRAE 90.1, Net Zero, certificações…"
-                  disabled={pending}
-                />
-                {pending ? (
-                  <Button type="button" variant="secondary" onClick={stop}>
-                    <Square className="h-4 w-4" />
-                    Parar
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={!input.trim()}>
-                    <Send className="h-4 w-4" />
-                    Enviar
-                  </Button>
-                )}
-              </form>
-
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {promptSuggestions.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => send(s)}
-                    disabled={pending}
-                    className="rounded-full border border-(--color-line) bg-(--color-panel-2)/40 px-2.5 py-1 text-[11px] text-(--color-muted) hover:bg-(--color-panel-2) hover:text-(--color-text) transition-colors disabled:opacity-50"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
+          <CardContent className="!p-0">
+            <ChatPanel
+              history={history}
+              pending={pending}
+              input={input}
+              onInputChange={setInput}
+              onSend={handleSend}
+              onStop={stop}
+              suggestions={promptSuggestions}
+              scrollClassName="h-[480px]"
+            />
           </CardContent>
         </Card>
       </div>
@@ -291,7 +147,7 @@ function Assistant() {
         <Card className="hover-lift">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-(--color-accent)" />
+              <Sparkles className="h-3.5 w-3.5 text-(--color-accent)" strokeWidth={1.75} />
               Atalhos
             </CardTitle>
             <CardDescription>Tópicos populares</CardDescription>
@@ -301,18 +157,21 @@ function Assistant() {
               <button
                 key={qa.label}
                 type="button"
-                onClick={() => send(qa.q)}
+                onClick={() => handleSend(qa.q)}
                 disabled={pending}
-                className="group flex items-center gap-3 rounded-lg border border-(--color-line) bg-(--color-panel-2)/40 px-3 py-2.5 text-left transition-colors hover:bg-(--color-panel-2) disabled:opacity-50"
+                className="group flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1px_var(--color-line-strong),inset_0_1px_0_oklch(1_0_0_/_0.03)] hover:bg-(--color-surface-elevated)/40 disabled:opacity-50"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-(--color-accent)/15 text-(--color-accent)">
-                  <qa.icon className="h-3.5 w-3.5" />
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-(--color-accent)/10 text-(--color-accent) shadow-[inset_0_0_0_1px_oklch(0.72_0.15_215_/_0.25)]">
+                  <qa.icon className="h-3 w-3" strokeWidth={1.75} />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-(--color-text) group-hover:text-(--color-accent) transition-colors">
+                  <p
+                    className="text-[12.5px] text-(--color-text) leading-tight tracking-[-0.005em]"
+                    style={{ fontWeight: 510 }}
+                  >
                     {qa.label}
                   </p>
-                  <p className="text-[11px] text-(--color-muted) line-clamp-2">
+                  <p className="text-[11px] text-(--color-muted) line-clamp-2 leading-relaxed mt-0.5">
                     {qa.q}
                   </p>
                 </div>
@@ -324,154 +183,28 @@ function Assistant() {
         <Card className="hover-lift">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-(--color-vegetation)" />
+              <BookOpen className="h-3.5 w-3.5 text-(--color-success)" strokeWidth={1.75} />
               Base de conhecimento
             </CardTitle>
             <CardDescription>Tópicos cobertos pelo prompt</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-1.5 text-xs">
-            {[
-              'NBR 15527:2019 — aproveitamento de água da chuva',
-              'NBR 16401-1:2008 — climatização e qualidade do ar',
-              'NBR 15575:2013 — edificações habitacionais',
-              'ASHRAE 90.1-2019 — Energy Standard',
-              'LEED v4.1 — Building Design and Construction',
-              'AQUA-HQE — processo brasileiro',
-              'BREEAM International New Construction',
-              'ISO 50001:2018 — gestão de energia',
-              'NZEB — definições DOE/NREL',
-              'ECLSS — Environmental Control and Life Support Systems',
-            ].map((d) => (
+          <CardContent className="flex flex-col gap-1 text-xs">
+            {knowledgeBase.map((d) => (
               <div
                 key={d}
-                className="flex items-center gap-2 rounded-md bg-(--color-panel-2)/40 px-2.5 py-1.5"
+                className="flex items-center gap-2 rounded-md px-2.5 py-1.5 shadow-[inset_0_0_0_1px_var(--color-line)]"
               >
-                <FileText className="h-3 w-3 text-(--color-muted) shrink-0" />
-                <span className="text-(--color-text-soft) truncate">{d}</span>
+                <FileText className="h-3 w-3 text-(--color-faint) shrink-0" strokeWidth={1.75} />
+                <span className="text-[11.5px] text-(--color-text-soft) truncate">{d}</span>
               </div>
             ))}
-            <p className="text-[11px] text-(--color-faint) mt-2 px-1">
-              Atendido por Google Gemini 2.5 Flash com prompt sistêmico
-              especializado. Pipeline completo de RAG sobre PDFs ficará
-              disponível na disciplina de GenAI.
+            <p className="text-[11px] text-(--color-faint) mt-2 px-1 leading-relaxed">
+              Atendido por Google Gemini 2.5 Flash com prompt sistêmico especializado.
+              Pipeline completo de RAG sobre PDFs ficará disponível na disciplina de
+              GenAI.
             </p>
           </CardContent>
         </Card>
-      </div>
-    </div>
-  )
-}
-
-function Message({ message }) {
-  const isUser = message.role === 'user'
-  const [copied, setCopied] = useState(false)
-
-  const onCopy = async () => {
-    await navigator.clipboard.writeText(message.content)
-    setCopied(true)
-    toast.success('Resposta copiada')
-    setTimeout(() => setCopied(false), 1600)
-  }
-
-  if (message.error && !message.content) {
-    return (
-      <div className="flex items-start gap-2.5 max-w-[88%] fade-up">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-(--color-danger)/30 bg-(--color-danger)/10 text-(--color-danger)">
-          <AlertTriangle className="h-3.5 w-3.5" />
-        </div>
-        <div className="rounded-md border border-(--color-danger)/30 bg-(--color-danger)/5 px-3 py-2 text-[13px] text-(--color-text)">
-          <p className="font-medium mb-0.5">Não consegui responder agora.</p>
-          <p className="text-[11px] text-(--color-muted)">{message.error}</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className={cn(
-        'flex items-start gap-2.5 max-w-[88%] fade-up',
-        isUser && 'self-end flex-row-reverse',
-      )}
-    >
-      <div
-        className={cn(
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border',
-          isUser
-            ? 'bg-(--color-panel-2) text-(--color-muted) border-(--color-line)'
-            : 'bg-(--color-accent)/10 text-(--color-accent) border-(--color-accent)/30',
-        )}
-      >
-        {isUser ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div
-          className={cn(
-            'rounded-md px-3 py-2 text-[13px] leading-relaxed max-w-none',
-            isUser
-              ? 'bg-(--color-accent)/10 text-(--color-text) border border-(--color-accent)/30'
-              : 'bg-(--color-panel-2) text-(--color-text-soft) border border-(--color-line)',
-          )}
-        >
-          {message.streaming && !message.content ? (
-            <div className="space-y-2 py-1">
-              <Skeleton className="h-3 w-2/3" />
-              <Skeleton className="h-3 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
-            </div>
-          ) : isUser ? (
-            <p className="m-0">{message.content}</p>
-          ) : (
-            <div className={cn(message.streaming && 'streaming-caret')}>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  p: (props) => <p className="m-0 mb-2 last:mb-0" {...props} />,
-                  strong: (props) => (
-                    <strong className="text-(--color-text) font-semibold" {...props} />
-                  ),
-                  em: (props) => (
-                    <em className="text-(--color-accent) not-italic font-medium" {...props} />
-                  ),
-                  code: (props) => (
-                    <code
-                      className="rounded bg-(--color-panel-3) px-1 py-0.5 text-[12px] font-mono text-(--color-text)"
-                      {...props}
-                    />
-                  ),
-                  ul: (props) => (
-                    <ul className="m-0 mb-2 ml-5 list-disc space-y-0.5" {...props} />
-                  ),
-                  ol: (props) => (
-                    <ol className="m-0 mb-2 ml-5 list-decimal space-y-0.5" {...props} />
-                  ),
-                  a: (props) => (
-                    <a
-                      className="text-(--color-accent) underline-offset-2 hover:underline"
-                      target="_blank"
-                      rel="noreferrer"
-                      {...props}
-                    />
-                  ),
-                }}
-              >
-                {message.content}
-              </ReactMarkdown>
-            </div>
-          )}
-        </div>
-        {!isUser && message.content && !message.streaming && (
-          <div className="mt-1.5 flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={onCopy}
-              className="ml-auto flex items-center gap-1 rounded-md border border-(--color-line) bg-(--color-panel-2) px-1.5 py-0.5 text-[11px] text-(--color-muted) hover:text-(--color-text) hover:bg-(--color-panel-3) transition-colors"
-            >
-              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-              {copied ? 'copiado' : 'copiar'}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )
