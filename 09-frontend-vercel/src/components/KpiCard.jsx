@@ -56,38 +56,36 @@ function KpiCard({
         </div>
 
         <div className="flex items-end justify-between gap-3">
-          <div className="flex flex-col gap-1.5 min-w-0">
-            <div className="flex items-baseline gap-2">
-              <span
-                className="number-display number-tween text-[32px] leading-none text-(--color-text)"
-                style={{ fontWeight: 500 }}
-              >
-                {display}
+          <div className="flex flex-col gap-1 min-w-0 flex-1">
+            <span
+              className="number-display number-tween text-[32px] leading-none text-(--color-text) truncate"
+              style={{ fontWeight: 500 }}
+            >
+              {display}
+            </span>
+            {unit && (
+              <span className="text-[11px] text-(--color-muted) leading-tight truncate">
+                {unit}
               </span>
-              {unit && (
-                <span className="text-[11px] text-(--color-muted) font-medium">
-                  {unit}
-                </span>
-              )}
-            </div>
+            )}
             {delta != null && (
-              <div className="flex items-center gap-1.5 text-[11px]">
+              <div className="flex items-center gap-1.5 text-[11px] mt-1">
                 <span
                   className={cn(
-                    'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-medium tabular-nums',
+                    'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-medium tabular-nums shrink-0',
                     trendStyles[trend],
                   )}
                 >
                   {TrendIcon && <TrendIcon className="h-2.5 w-2.5" strokeWidth={2.25} />}
                   {Math.abs(delta).toFixed(1)}%
                 </span>
-                <span className="text-(--color-faint)">vs. anterior</span>
+                <span className="text-(--color-faint) truncate">vs. anterior</span>
               </div>
             )}
           </div>
 
           {sparklineData && (
-            <div className="h-12 w-24 shrink-0">
+            <div className="h-12 w-20 shrink-0 self-end">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={sparklineData}
