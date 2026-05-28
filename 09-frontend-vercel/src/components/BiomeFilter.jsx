@@ -1,23 +1,20 @@
-import { Trees } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { biomes } from '@/data/mocks'
 
 function BiomeFilter({ value, onChange }) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="flex items-center gap-1.5 text-xs text-(--color-muted) mr-1">
-        <Trees className="h-3.5 w-3.5" />
+    <div className="flex flex-wrap items-center gap-1">
+      <span className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium mr-2">
         Bioma
       </span>
       <button
         type="button"
         onClick={() => onChange(null)}
         className={cn(
-          'rounded-full border px-3 py-1 text-xs transition-colors',
+          'rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors',
           value == null
-            ? 'border-(--color-accent)/40 bg-(--color-accent)/15 text-(--color-accent)'
-            : 'border-(--color-line) text-(--color-muted) hover:border-(--color-accent)/30 hover:text-(--color-text)',
+            ? 'border-(--color-line-strong) bg-(--color-panel-2) text-(--color-text)'
+            : 'border-(--color-line) text-(--color-muted) hover:border-(--color-line-strong) hover:text-(--color-text)',
         )}
       >
         Todos
@@ -30,14 +27,14 @@ function BiomeFilter({ value, onChange }) {
             type="button"
             onClick={() => onChange(b.id)}
             className={cn(
-              'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors',
+              'flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors',
               active
-                ? 'border-(--color-accent)/40 bg-(--color-accent)/15 text-(--color-text)'
-                : 'border-(--color-line) text-(--color-muted) hover:border-(--color-accent)/30 hover:text-(--color-text)',
+                ? 'border-(--color-line-strong) bg-(--color-panel-2) text-(--color-text)'
+                : 'border-(--color-line) text-(--color-muted) hover:border-(--color-line-strong) hover:text-(--color-text)',
             )}
           >
             <span
-              className="h-2 w-2 rounded-full"
+              className="h-1.5 w-1.5 rounded-full"
               style={{ background: b.color }}
             />
             {b.label}

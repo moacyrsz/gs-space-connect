@@ -2,18 +2,19 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors',
+  'inline-flex items-center gap-1 rounded border px-1.5 py-0 h-5 text-[11px] font-medium transition-colors leading-none',
   {
     variants: {
       variant: {
-        default: 'border-(--color-line) bg-(--color-panel-2) text-(--color-text)',
+        default: 'border-(--color-line) bg-(--color-panel-2) text-(--color-text-soft)',
         high:
-          'border-(--color-fire-high)/40 bg-(--color-fire-high)/15 text-(--color-fire-high)',
+          'border-(--color-danger)/30 bg-(--color-danger)/10 text-(--color-danger)',
         medium:
-          'border-(--color-fire-mid)/40 bg-(--color-fire-mid)/15 text-(--color-fire-mid)',
+          'border-(--color-warning)/30 bg-(--color-warning)/10 text-(--color-warning)',
         low:
-          'border-(--color-vegetation)/40 bg-(--color-vegetation)/15 text-(--color-vegetation)',
+          'border-(--color-success)/30 bg-(--color-success)/10 text-(--color-success)',
         outline: 'border-(--color-line) text-(--color-muted)',
+        accent: 'border-(--color-accent)/30 bg-(--color-accent)/10 text-(--color-accent)',
       },
     },
     defaultVariants: { variant: 'default' },
@@ -21,9 +22,7 @@ const badgeVariants = cva(
 )
 
 function Badge({ className, variant, ...props }) {
-  return (
-    <span className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
+  return <span className={cn(badgeVariants({ variant }), className)} {...props} />
 }
 
 export { Badge, badgeVariants }
