@@ -106,9 +106,9 @@ Esta seção apresenta a auditoria final de integração. Cobre:
 
 ## 4. Links
 
-- **Vídeo (YouTube, Não Listado):** [PREENCHER]
-- **Repositório GitHub:** [PREENCHER]
-- **Aplicação Vercel:** [PREENCHER]
+- **Vídeo (YouTube, Não Listado):** [PREENCHER NA VERSÃO FINAL]
+- **Repositório GitHub:** https://github.com/moacyrsz/gs-space-connect
+- **Aplicação Vercel:** https://space-connect-mu.vercel.app
 
 ---
 
