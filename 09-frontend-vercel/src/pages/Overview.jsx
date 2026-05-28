@@ -3,8 +3,6 @@ import {
   Bar,
   BarChart,
   Cell,
-  Line,
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -14,7 +12,6 @@ import {
   CartesianGrid,
   Area,
   AreaChart,
-  ReferenceLine,
 } from 'recharts'
 import { toast } from 'sonner'
 import {
@@ -85,9 +82,6 @@ function Overview() {
     buildSensorHistory(mockSensorReading()),
   )
 
-  // Crosshair sincronizado entre o LineChart e os sparklines do dia
-  const [hoverIndex, setHoverIndex] = useState(null)
-
   useEffect(() => {
     const id = setInterval(() => {
       const r = mockSensorReading()
@@ -99,13 +93,16 @@ function Overview() {
 
   const timeSeries = useMemo(() => buildTimeSeries(30), [])
   const rangeDays = range === '24h' ? 1 : range === '7d' ? 7 : 30
-  const filteredAlerts = useMemo(
-    () =>
-      biomeFilter == null
-        ? initialAlerts
-        : initialAlerts.filter((a) => a.biome === biomeFilter),
-    [biomeFilter],
-  )
+
+  // Filtro centralizado: período + bioma aplicados a tudo (KPIs, ActivityFeed, Pizza)
+  const filteredAlerts = useMemo(() => {
+    const cutoff = Date.now() - rangeDays * 24 * 60 * 60 * 1000
+    return initialAlerts.filter((a) => {
+      if (biomeFilter && a.biome !== biomeFilter) return false
+      if (new Date(a.at).getTime() < cutoff) return false
+      return true
+    })
+  }, [biomeFilter, rangeDays])
   const biomeBars = useMemo(
     () =>
       buildBiomeBars(timeSeries, rangeDays).map((b) => ({
@@ -365,77 +362,117 @@ function Overview() {
         </Card>
       </div>
 
-      {/* Linha 2: tendência (com crosshair sincronizado) + Activity Feed */}
+      {/* Linha 2: tendência (stacked area) + Activity Feed */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
         <Card className="xl:col-span-8 hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp
-                className="h-3.5 w-3.5 text-(--color-muted)"
-                strokeWidth={1.5}
-              />
-              Tendência diária por bioma
-            </CardTitle>
-            <CardDescription>
-              Série temporal das últimas {rangeDays} {rangeDays === 1 ? 'leitura' : 'leituras'}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp
+                    className="h-3.5 w-3.5 text-(--color-muted)"
+                    strokeWidth={1.5}
+                  />
+                  Tendência diária por bioma
+                </CardTitle>
+                <CardDescription>
+                  Contribuição empilhada · últimas {rangeDays}{' '}
+                  {rangeDays === 1 ? 'leitura' : 'leituras'}
+                </CardDescription>
+              </div>
+              <Badge variant="outline" style={{ fontFamily: 'var(--font-mono)' }}>
+                {trimmedTimeSeries
+                  .reduce(
+                    (acc, d) =>
+                      acc +
+                      biomes.reduce((sum, b) => sum + (d[b.id] || 0), 0),
+                    0,
+                  )
+                  .toLocaleString('pt-BR')}{' '}
+                focos
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <div
-              className="h-[260px]"
-              onMouseLeave={() => setHoverIndex(null)}
-            >
+            <div className="h-[280px] -mx-2">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
+                <AreaChart
                   data={trimmedTimeSeries}
-                  margin={{ left: -10, right: 4, top: 8, bottom: 0 }}
-                  onMouseMove={(state) => {
-                    if (state && state.activeTooltipIndex != null) {
-                      setHoverIndex(state.activeTooltipIndex)
-                    }
-                  }}
+                  margin={{ left: 0, right: 8, top: 8, bottom: 0 }}
                 >
+                  <defs>
+                    {biomes.map((b) => (
+                      <linearGradient
+                        key={b.id}
+                        id={`grad-${b.id}`}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor={biomePaletteLight[b.id]}
+                          stopOpacity={0.4}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor={biomePaletteLight[b.id]}
+                          stopOpacity={0.08}
+                        />
+                      </linearGradient>
+                    ))}
+                  </defs>
                   <CartesianGrid {...CHART_GRID_PROPS} />
                   <XAxis
                     dataKey="date"
                     {...CHART_AXIS_PROPS}
                     interval={Math.max(0, Math.floor(rangeDays / 8) - 1)}
+                    dy={4}
                   />
-                  <YAxis {...CHART_AXIS_PROPS} />
+                  <YAxis
+                    {...CHART_AXIS_PROPS}
+                    width={42}
+                    tickFormatter={(v) =>
+                      v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v
+                    }
+                  />
                   <RechartsTooltip
                     cursor={{
                       stroke: 'rgba(31,29,26,0.15)',
                       strokeDasharray: '2 2',
+                      strokeWidth: 1,
                     }}
                     content={<ChartTooltip unit=" focos" />}
                   />
                   {biomes.map((b) => (
-                    <Line
+                    <Area
                       key={b.id}
                       type="monotone"
                       dataKey={b.id}
                       name={b.label}
+                      stackId="biomas"
                       stroke={biomePaletteLight[b.id]}
-                      strokeWidth={1.4}
-                      dot={false}
-                      activeDot={{ r: 3, strokeWidth: 0 }}
+                      strokeWidth={1.25}
+                      fill={`url(#grad-${b.id})`}
                       isAnimationActive={false}
                     />
                   ))}
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
               {biomes.map((b) => (
                 <div
                   key={b.id}
-                  className="flex items-center gap-1.5 text-[11px] text-(--color-muted)"
+                  className="flex items-center gap-1.5 text-[11px]"
+                  style={{ fontWeight: 500 }}
                 >
                   <span
-                    className="h-1.5 w-1.5 rounded-full"
+                    className="h-2 w-2 rounded-sm"
                     style={{ background: biomePaletteLight[b.id] }}
                   />
-                  {b.label}
+                  <span className="text-(--color-text-soft)">{b.label}</span>
                 </div>
               ))}
             </div>

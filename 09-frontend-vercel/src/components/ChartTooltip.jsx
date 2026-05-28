@@ -50,5 +50,10 @@ export const CHART_AXIS_PROPS = {
   fontSize: 11,
   tickLine: false,
   axisLine: false,
-  tick: { fill: '#82827C', fontFamily: "'Geist Mono', monospace" },
+  tick: {
+    fill: '#82827C',
+    fontFamily: "'Geist Mono', monospace",
+    fontWeight: 500,
+    letterSpacing: '-0.01em',
+  },
 }
