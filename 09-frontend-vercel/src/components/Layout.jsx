@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { CommandMenu } from '@/components/CommandMenu'
+import ChatWidget from '@/components/chat/ChatWidget'
 import { cn, formatTime } from '@/lib/utils'
 import { initialAlerts, sourceLabels } from '@/data/mocks'
 
@@ -196,6 +197,8 @@ function Layout() {
             <Outlet />
           </div>
         </main>
+
+        <ChatWidget />
 
         <footer className="border-t border-(--color-line) px-7 py-4 text-[11px] text-(--color-muted) lg:px-10 flex flex-wrap items-center justify-between gap-2">
           <span>GS 2026.1 · Space Connect · Dados mockados para fins didáticos</span>
