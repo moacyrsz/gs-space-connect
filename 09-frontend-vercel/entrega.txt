@@ -1,0 +1,6 @@
+GS 2026.1 - Front-end & Mobile Development
+Aluno: Moacyr Cabral da Silva
+RM: 559263
+
+GitHub: https://github.com/moacyrsz/gs-space-connect
+Vercel: [PREENCHER APOS DEPLOY]
