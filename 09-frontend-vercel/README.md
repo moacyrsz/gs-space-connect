@@ -83,6 +83,6 @@ Conforme o enunciado, a entrega é um arquivo `.txt` com:
 
 - Nome e RM do integrante: Moacyr Cabral da Silva — RM 559263
 - Link do GitHub: https://github.com/moacyrsz/gs-space-connect
-- Link da Vercel: [PREENCHER APÓS DEPLOY]
+- Link da Vercel: https://space-connect-mu.vercel.app
 
 Ver [`entrega.txt`](entrega.txt).

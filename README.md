@@ -9,6 +9,11 @@ Repositório integrado da Global Solution 2026.1 da FIAP.
 
 Plataforma integrada de monitoramento de risco de queimadas e degradação vegetal, alimentada por dados orbitais, IoT de campo e documentos técnicos. Detalhe completo em [00-cenario/cenario.md](00-cenario/cenario.md).
 
+## Links públicos
+
+- **Aplicação web (Vercel):** https://space-connect-mu.vercel.app
+- **Repositório:** https://github.com/moacyrsz/gs-space-connect
+
 ## Disciplinas
 
 | Pasta | Disciplina | Atividade no portal | Artefato principal |
