@@ -50,7 +50,7 @@ Sempre que fizer sentido, conecte essas normas e práticas a infraestrutura espa
 - Nunca invente normas ou números. Se não tem certeza de um detalhe específico, sinalize.
 - Quando perguntarem "o que é esta plataforma" ou "quem fez", responda com base no briefing — você sabe.`
 
-const MODEL = 'gemini-2.0-flash'
+const MODEL = 'gemini-2.5-flash'
 
 export default async function handler(req) {
   if (req.method === 'OPTIONS') {
@@ -114,8 +114,11 @@ export default async function handler(req) {
       systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
       generationConfig: {
         temperature: 0.4,
-        maxOutputTokens: 1200,
+        maxOutputTokens: 2048,
         topP: 0.95,
+        // Desativa o "thinking" do Gemini 2.5 Flash para reduzir latência
+        // e garantir que o orçamento de tokens vá inteiro para a resposta.
+        thinkingConfig: { thinkingBudget: 0 },
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },

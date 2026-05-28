@@ -197,9 +197,10 @@ function Assistant() {
             Assistente Técnico
           </h1>
           <p className="mt-1 text-[13px] text-(--color-muted) max-w-2xl">
-            Respostas geradas em tempo real por <strong className="text-(--color-text)">Gemini 2.0 Flash</strong> com
-            prompt sistêmico especializado em normas de eficiência hídrica e
-            energética e sua aplicação a infraestrutura espacial.
+            Respostas geradas em tempo real por <strong className="text-(--color-text)">Gemini 2.5 Flash</strong> com
+            prompt sistêmico especializado na plataforma Space Connect, em
+            normas de eficiência hídrica e energética e em sua aplicação a
+            infraestrutura espacial.
           </p>
         </div>
 
@@ -212,7 +213,7 @@ function Assistant() {
               <div>
                 <CardTitle>Conversa</CardTitle>
                 <CardDescription className="font-mono">
-                  {history.filter((m) => m.role !== 'system').length} mensagens · gemini-2.0-flash
+                  {history.filter((m) => m.role !== 'system').length} mensagens · gemini-2.5-flash
                 </CardDescription>
               </div>
             </div>
@@ -347,7 +348,7 @@ function Assistant() {
               </div>
             ))}
             <p className="text-[11px] text-(--color-faint) mt-2 px-1">
-              Atendido por Google Gemini 2.0 Flash com prompt sistêmico
+              Atendido por Google Gemini 2.5 Flash com prompt sistêmico
               especializado. Pipeline completo de RAG sobre PDFs ficará
               disponível na disciplina de GenAI.
             </p>
