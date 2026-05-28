@@ -2,55 +2,79 @@
 @import 'leaflet/dist/leaflet.css';
 
 /*
- * Tokens inspirados em Linear (estrutura), Plausible (convenções tabulares)
- * e Geist/Vercel (disciplina cromática). Regra anti-IA: zero gradiente
- * colorido, zero glassmorphism, zero glow, accent monocromático.
+ * "Profundidade silenciosa" — paleta inspirada em Stripe Dashboard,
+ * Vercel Observability e Datadog. Cada pixel justifica sua existência
+ * por hierarquia tipográfica e luz, nunca por ornamento.
  */
 
 @theme {
-  --color-bg: oklch(0.145 0.002 270);
-  --color-bg-elev: oklch(0.165 0.002 270);
-  --color-panel: oklch(0.195 0.003 270);
-  --color-panel-2: oklch(0.225 0.003 270);
-  --color-panel-3: oklch(0.255 0.004 270);
+  /* Surfaces em 3 níveis com elevação visível porém sutil */
+  --color-bg: oklch(0.145 0.012 260);
+  --color-bg-canvas: oklch(0.165 0.013 260);
+  --color-surface: oklch(0.195 0.014 258);
+  --color-surface-elevated: oklch(0.225 0.015 256);
+  --color-surface-overlay: oklch(0.255 0.016 254);
 
-  --color-line: oklch(0.260 0.004 270);
-  --color-line-strong: oklch(0.310 0.005 270);
+  --color-line: oklch(0.255 0.012 258 / 0.6);
+  --color-line-strong: oklch(0.32 0.014 256);
+  --color-line-strongest: oklch(0.4 0.015 256);
 
-  --color-text: oklch(0.965 0.002 270);
-  --color-text-soft: oklch(0.880 0.004 270);
-  --color-muted: oklch(0.640 0.010 265);
-  --color-faint: oklch(0.490 0.010 265);
+  --color-text: oklch(0.96 0.005 250);
+  --color-text-soft: oklch(0.86 0.007 250);
+  --color-muted: oklch(0.74 0.008 250);
+  --color-faint: oklch(0.56 0.01 250);
+  --color-ghost: oklch(0.42 0.012 250);
 
-  /* Accent único — Linear blue */
-  --color-accent: oklch(0.585 0.165 270);
-  --color-accent-strong: oklch(0.640 0.165 270);
-  --color-accent-soft: oklch(0.380 0.140 270);
+  /* Accent azul espacial dessaturado — refinado, não neon */
+  --color-accent: oklch(0.72 0.15 215);
+  --color-accent-strong: oklch(0.78 0.16 215);
+  --color-accent-soft: oklch(0.72 0.15 215 / 0.12);
+
+  /* Semânticas refinadas (não bootstrap, não neon) */
+  --color-success: oklch(0.78 0.14 155);
+  --color-warning: oklch(0.82 0.15 75);
+  --color-danger: oklch(0.68 0.2 22);
+
+  /* Aliases legados */
+  --color-panel: var(--color-surface);
+  --color-panel-2: var(--color-surface-elevated);
+  --color-panel-3: var(--color-surface-overlay);
+  --color-bg-elev: var(--color-bg-canvas);
+  --color-fire-high: var(--color-danger);
+  --color-fire-mid: var(--color-warning);
+  --color-vegetation: var(--color-success);
+  --color-info: var(--color-accent);
+  --color-purple: oklch(0.7 0.16 290);
   --color-accent-fg: #ffffff;
 
-  /* Semânticas sóbrias — sem neon */
-  --color-success: oklch(0.700 0.130 155);
-  --color-warning: oklch(0.790 0.140 85);
-  --color-danger: oklch(0.640 0.180 25);
+  --font-sans:
+    'Geist', 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display:
+    'Geist', 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:
+    'Geist Mono', 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
 
-  /* Aliases para legibilidade da base já existente */
-  --color-fire-high: oklch(0.640 0.180 25);
-  --color-fire-mid: oklch(0.790 0.140 85);
-  --color-vegetation: oklch(0.700 0.130 155);
-  --color-info: oklch(0.640 0.165 270);
-  --color-purple: oklch(0.640 0.110 290);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 
-  --font-sans: 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
-
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-
-  --shadow-card: 0 0 0 1px var(--color-line);
-  --shadow-elev: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px var(--color-line);
-  --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 0 0 1px var(--color-line-strong);
+  /* Sombras compostas (Stripe-style — 3 camadas) */
+  --shadow-card:
+    0 0 0 1px var(--color-line-strong),
+    inset 0 1px 0 oklch(1 0 0 / 0.04);
+  --shadow-elev:
+    0 0 0 1px var(--color-line-strong),
+    inset 0 1px 0 oklch(1 0 0 / 0.04),
+    0 1px 2px oklch(0 0 0 / 0.4),
+    0 8px 24px -8px oklch(0 0 0 / 0.5);
+  --shadow-pop:
+    0 0 0 1px var(--color-line-strongest),
+    0 1px 2px oklch(0 0 0 / 0.5),
+    0 16px 48px -12px oklch(0 0 0 / 0.6);
+  --shadow-accent:
+    0 0 0 1px oklch(0.72 0.15 215 / 0.4),
+    0 0 24px -4px oklch(0.72 0.15 215 / 0.2);
 }
 
 @layer base {
@@ -68,16 +92,41 @@
 
   html {
     color-scheme: dark;
-    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    /* Tipografia: tabular-nums, stylistic sets, kerning */
+    font-feature-settings: 'cv11', 'ss01', 'ss03', 'tnum';
+    text-rendering: geometricPrecision;
   }
 
   body {
-    background: var(--color-bg);
+    background:
+      radial-gradient(
+        ellipse 90% 40% at 50% -10%,
+        oklch(0.72 0.15 215 / 0.06),
+        transparent 60%
+      ),
+      var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.005em;
+  }
+
+  /* Camada de "grain" sutil — quebra a chapadez do dark mode */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' /%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
   }
 
   ::selection {
@@ -98,41 +147,69 @@
 
 @layer components {
   .surface {
-    background: var(--color-panel);
-    border: 1px solid var(--color-line);
+    background: var(--color-surface);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
   }
 
-  .surface-elev {
-    background: var(--color-panel);
-    border: 1px solid var(--color-line);
+  .surface-elevated {
+    background: var(--color-surface);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elev);
   }
 
-  /* Hover Linear-style: muda apenas a borda, não o fundo */
+  .surface-pop {
+    background: var(--color-surface-overlay);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* Hover Stripe-style: border vira accent e ganha glow leve */
   .hover-lift {
-    transition: border-color 160ms ease, color 160ms ease;
+    transition:
+      box-shadow 220ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 220ms cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .hover-lift:hover {
-    border-color: var(--color-line-strong);
+    box-shadow:
+      0 0 0 1px var(--color-line-strongest),
+      inset 0 1px 0 oklch(1 0 0 / 0.05),
+      0 1px 2px oklch(0 0 0 / 0.4),
+      0 8px 24px -8px oklch(0 0 0 / 0.5);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .number-display {
+    font-feature-settings: 'tnum', 'ss01';
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.024em;
+  }
+
+  .heading-display {
+    letter-spacing: -0.02em;
+    font-weight: 580;
   }
 }
 
-/* Leaflet dark theme — sóbrio */
+/* Leaflet dark theme — refinado */
 .leaflet-container {
   background: var(--color-bg);
   font-family: inherit;
 }
 
 .leaflet-control-attribution {
-  background: oklch(0.145 0.002 270 / 0.85) !important;
+  background: oklch(0.145 0.012 260 / 0.85) !important;
   color: var(--color-faint) !important;
   font-size: 10px !important;
-  padding: 2px 6px !important;
+  padding: 3px 8px !important;
   border: 1px solid var(--color-line) !important;
   border-bottom: 0 !important;
   border-right: 0 !important;
+  border-top-left-radius: 6px !important;
 }
 
 .leaflet-control-attribution a {
@@ -140,63 +217,64 @@
 }
 
 .leaflet-bar {
-  border: 1px solid var(--color-line) !important;
-  background: var(--color-panel) !important;
+  border: 1px solid var(--color-line-strong) !important;
+  background: var(--color-surface) !important;
   border-radius: var(--radius-md) !important;
   overflow: hidden;
-  box-shadow: none !important;
+  box-shadow: var(--shadow-elev) !important;
 }
 
 .leaflet-bar a {
-  background: var(--color-panel) !important;
-  color: var(--color-text) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-soft) !important;
   border-color: var(--color-line) !important;
-  transition: background 120ms ease;
+  transition: background 160ms ease;
 }
 
 .leaflet-bar a:hover {
-  background: var(--color-panel-2) !important;
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-text) !important;
 }
 
 .leaflet-popup-content-wrapper {
-  background: var(--color-panel) !important;
+  background: var(--color-surface-overlay) !important;
   color: var(--color-text) !important;
-  border: 1px solid var(--color-line) !important;
+  border: 1px solid var(--color-line-strong) !important;
   border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-pop) !important;
 }
 
 .leaflet-popup-tip {
-  background: var(--color-panel) !important;
-  border: 1px solid var(--color-line) !important;
+  background: var(--color-surface-overlay) !important;
+  border: 1px solid var(--color-line-strong) !important;
 }
 
 .leaflet-popup-content {
-  margin: 10px 14px !important;
+  margin: 12px 16px !important;
   font-size: 12px !important;
   color: var(--color-text) !important;
 }
 
 .leaflet-popup-close-button {
   color: var(--color-muted) !important;
-  padding: 6px 6px 0 0 !important;
+  padding: 8px 8px 0 0 !important;
 }
 
-/* Pulsing dot — somente na badge LIVE, com cor de danger sóbria */
+/* LIVE pulse — sutil, não pirotecnia */
 @keyframes badge-pulse {
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.85;
+    opacity: 0.9;
   }
   50% {
-    transform: scale(1.4);
-    opacity: 0.4;
+    transform: scale(1.5);
+    opacity: 0.3;
   }
 }
 
 .badge-pulse {
-  animation: badge-pulse 2s ease-in-out infinite;
+  animation: badge-pulse 2.4s ease-in-out infinite;
 }
 
 /* Streaming caret no chat */
@@ -233,44 +311,74 @@
 }
 
 .fade-up {
-  animation: fade-up 200ms ease-out both;
+  animation: fade-up 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Scrollbar sutil */
+/* Sparkline draw-in — efeito Stripe */
+@keyframes spark-draw {
+  from {
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Number tween para KPIs */
+@keyframes number-up {
+  from {
+    opacity: 0.4;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.number-tween {
+  animation: number-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Scrollbar refinada */
 .scrollbar-thin::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--color-line);
+  background: var(--color-line-strong);
   border-radius: 4px;
+  border: 2px solid var(--color-bg);
+  background-clip: padding-box;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: var(--color-line-strong);
+  background: var(--color-line-strongest);
+  background-clip: padding-box;
+  border: 2px solid var(--color-bg);
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* Sonner toast theming */
+/* Sonner toast theming refinado */
 [data-sonner-toaster][data-theme] {
-  --normal-bg: var(--color-panel);
-  --normal-border: var(--color-line);
+  --normal-bg: var(--color-surface-overlay);
+  --normal-border: var(--color-line-strong);
   --normal-text: var(--color-text);
-  --success-bg: var(--color-panel);
-  --success-border: var(--color-line);
+  --success-bg: var(--color-surface-overlay);
+  --success-border: oklch(0.78 0.14 155 / 0.4);
   --success-text: var(--color-success);
-  --error-bg: var(--color-panel);
-  --error-border: var(--color-line);
+  --error-bg: var(--color-surface-overlay);
+  --error-border: oklch(0.68 0.2 22 / 0.4);
   --error-text: var(--color-danger);
 }
 
-/* cmdk styles — sóbrios */
+/* cmdk styles */
 [cmdk-root] {
-  background: var(--color-panel);
+  background: var(--color-surface-overlay);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -279,11 +387,11 @@
   width: 100%;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line-strong);
   color: var(--color-text);
   font-family: inherit;
   font-size: 14px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   outline: none;
 }
 
@@ -294,13 +402,13 @@
 [cmdk-list] {
   max-height: 360px;
   overflow-y: auto;
-  padding: 6px;
+  padding: 8px;
 }
 
 [cmdk-empty] {
   color: var(--color-muted);
   font-size: 12px;
-  padding: 24px;
+  padding: 32px;
   text-align: center;
 }
 
@@ -309,7 +417,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 8px 10px 4px;
+  padding: 10px 12px 6px;
   font-weight: 510;
 }
 
@@ -317,8 +425,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
-  border-radius: 4px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   color: var(--color-text-soft);
   cursor: pointer;
@@ -326,6 +434,6 @@
 }
 
 [cmdk-item][data-selected='true'] {
-  background: var(--color-panel-2);
+  background: var(--color-surface-elevated);
   color: var(--color-text);
 }

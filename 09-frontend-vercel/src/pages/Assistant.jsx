@@ -189,15 +189,18 @@ function Assistant() {
   return (
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
       <div className="xl:col-span-8 flex flex-col gap-4">
-        <div>
-          <p className="text-[11px] uppercase tracking-wider text-(--color-faint) font-medium mb-1">
+        <div className="space-y-1.5">
+          <p className="text-[11px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
             Camada de IA · NLP + GenAI
           </p>
-          <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-(--color-text)">
+          <h1
+            className="heading-display text-[30px] leading-[1.1] text-(--color-text)"
+            style={{ fontWeight: 580 }}
+          >
             Assistente Técnico
           </h1>
-          <p className="mt-1 text-[13px] text-(--color-muted) max-w-2xl">
-            Respostas geradas em tempo real por <strong className="text-(--color-text)">Gemini 2.5 Flash</strong> com
+          <p className="text-[13px] text-(--color-muted) max-w-2xl leading-relaxed text-balance">
+            Respostas geradas em tempo real por <strong className="text-(--color-text)" style={{ fontWeight: 510 }}>Gemini 2.5 Flash</strong> com
             prompt sistêmico especializado na plataforma Space Connect, em
             normas de eficiência hídrica e energética e em sua aplicação a
             infraestrutura espacial.
