@@ -123,7 +123,7 @@ function Overview() {
 
   const sourceDist = useMemo(() => {
     const map = {}
-    initialAlerts.forEach((a) => {
+    filteredAlerts.forEach((a) => {
       map[a.source] = (map[a.source] ?? 0) + 1
     })
     // Cores light: accent + neutros para distribuição
@@ -140,7 +140,9 @@ function Overview() {
       value,
       color: lightSourceColors[id] ?? '#82827C',
     }))
-  }, [])
+  }, [filteredAlerts])
+
+  const totalSourceAlerts = sourceDist.reduce((acc, s) => acc + s.value, 0) || 1
 
   const isCritical =
     reading.temperatura > 38 || reading.umidade < 22 || reading.radiacao > 0.7
@@ -229,7 +231,7 @@ function Overview() {
         <StatRow icon={Activity} label="Latência p95 inferência" value="180 ms" />
       </div>
 
-      {/* Linha 1: bar chart + Activity Feed */}
+      {/* Linha 1: bar chart + Origem dos alertas */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
         <Card className="xl:col-span-8 hover-lift">
           <CardHeader>
@@ -281,12 +283,89 @@ function Overview() {
           </CardContent>
         </Card>
 
-        <div className="xl:col-span-4">
-          <ActivityFeed alerts={filteredAlerts} />
-        </div>
+        <Card className="xl:col-span-4 hover-lift">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Workflow
+                className="h-3.5 w-3.5 text-(--color-muted)"
+                strokeWidth={1.5}
+              />
+              Origem dos alertas
+            </CardTitle>
+            <CardDescription>
+              Distribuição por sistema · {totalSourceAlerts}{' '}
+              {totalSourceAlerts === 1 ? 'alerta' : 'alertas'}
+              {biomeFilter && ` · ${biomes.find((b) => b.id === biomeFilter)?.label}`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {sourceDist.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <Workflow
+                  className="h-7 w-7 text-(--color-faint) mb-1.5"
+                  strokeWidth={1.25}
+                />
+                <p className="text-[12px] text-(--color-muted)">
+                  Sem alertas para este filtro.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="h-[160px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={sourceDist}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={42}
+                        outerRadius={64}
+                        paddingAngle={2}
+                        stroke="#FFFFFF"
+                        strokeWidth={2}
+                      >
+                        {sourceDist.map((entry) => (
+                          <Cell key={entry.id} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip content={<ChartTooltip unit=" alertas" />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex flex-col gap-1.5 text-[12px] mt-3">
+                  {sourceDist.map((s) => {
+                    const Icon = sourceIcons[s.id] ?? Sparkles
+                    const pct = Math.round((s.value / totalSourceAlerts) * 100)
+                    return (
+                      <div key={s.id} className="flex items-center gap-2">
+                        <span
+                          className="h-1.5 w-1.5 rounded-full shrink-0"
+                          style={{ background: s.color }}
+                        />
+                        <Icon
+                          className="h-3 w-3 text-(--color-faint) shrink-0"
+                          strokeWidth={1.5}
+                        />
+                        <span className="text-(--color-text-soft) truncate flex-1">
+                          {s.name}
+                        </span>
+                        <span
+                          className="text-(--color-faint) tabular-nums text-[11px]"
+                          style={{ fontFamily: 'var(--font-mono)' }}
+                        >
+                          {pct}%
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Linha 2: tendência (com crosshair sincronizado) + distribuição */}
+      {/* Linha 2: tendência (com crosshair sincronizado) + Activity Feed */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
         <Card className="xl:col-span-8 hover-lift">
           <CardHeader>
@@ -363,68 +442,9 @@ function Overview() {
           </CardContent>
         </Card>
 
-        <Card className="xl:col-span-4 hover-lift">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Workflow
-                className="h-3.5 w-3.5 text-(--color-muted)"
-                strokeWidth={1.5}
-              />
-              Origem dos alertas
-            </CardTitle>
-            <CardDescription>Distribuição por sistema</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[160px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={sourceDist}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={42}
-                    outerRadius={64}
-                    paddingAngle={2}
-                    stroke="#FFFFFF"
-                    strokeWidth={2}
-                  >
-                    {sourceDist.map((entry) => (
-                      <Cell key={entry.id} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip content={<ChartTooltip unit=" alertas" />} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-col gap-1.5 text-[12px] mt-3">
-              {sourceDist.map((s) => {
-                const Icon = sourceIcons[s.id] ?? Sparkles
-                const pct = Math.round((s.value / initialAlerts.length) * 100)
-                return (
-                  <div key={s.id} className="flex items-center gap-2">
-                    <span
-                      className="h-1.5 w-1.5 rounded-full shrink-0"
-                      style={{ background: s.color }}
-                    />
-                    <Icon
-                      className="h-3 w-3 text-(--color-faint) shrink-0"
-                      strokeWidth={1.5}
-                    />
-                    <span className="text-(--color-text-soft) truncate flex-1">
-                      {s.name}
-                    </span>
-                    <span
-                      className="text-(--color-faint) tabular-nums text-[11px]"
-                      style={{ fontFamily: 'var(--font-mono)' }}
-                    >
-                      {pct}%
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="xl:col-span-4">
+          <ActivityFeed alerts={filteredAlerts} />
+        </div>
       </div>
 
       {/* Linha 3: estação IoT */}
