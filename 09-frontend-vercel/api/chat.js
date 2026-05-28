@@ -1,7 +1,7 @@
 // Vercel Edge Function: proxy seguro para a Google Gemini API.
 // A chave fica em GEMINI_API_KEY (env var na Vercel) e nunca chega ao
 // browser. Resposta é streamada via Server-Sent Events para o front
-// renderizar token-a-token. Modelo: gemini-2.0-flash (free tier).
+// renderizar token-a-token. Modelo: gemini-2.5-flash.
 
 export const config = { runtime: 'edge' }
 
@@ -84,7 +84,6 @@ export default async function handler(req) {
     return json({ error: 'Campo "messages" obrigatório.' }, 400)
   }
 
-  // Sanitiza: aceita apenas user/assistant e limita tamanho do histórico.
   const safe = messages
     .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
     .slice(-12)
@@ -116,8 +115,6 @@ export default async function handler(req) {
         temperature: 0.4,
         maxOutputTokens: 2048,
         topP: 0.95,
-        // Desativa o "thinking" do Gemini 2.5 Flash para reduzir latência
-        // e garantir que o orçamento de tokens vá inteiro para a resposta.
         thinkingConfig: { thinkingBudget: 0 },
       },
       safetySettings: [
@@ -141,8 +138,11 @@ export default async function handler(req) {
     )
   }
 
-  // Gemini SSE: cada evento `data: { candidates: [...] }` traz texto
-  // incremental em candidates[0].content.parts[0].text.
+  // Parser SSE robusto: o Gemini envia eventos `data: {...}\r\n\r\n`,
+  // mas o JSON do payload pode conter `\n` internos. Por isso fazemos:
+  //   1. acumular bytes até encontrar `\n\n` (ou `\r\n\r\n`)
+  //   2. para cada bloco, juntar todas as linhas que começam com `data:`
+  //   3. tentar JSON.parse — se falhar, vamos para o próximo bloco
   const decoder = new TextDecoder()
   const encoder = new TextEncoder()
 
@@ -150,45 +150,91 @@ export default async function handler(req) {
     async start(controller) {
       const reader = upstream.body.getReader()
       let buffer = ''
+      let totalDeltas = 0
+
+      const flushBlock = (block) => {
+        // Junta as linhas `data: ...` (uma ou mais), removendo o prefixo
+        const dataLines = block
+          .split(/\r?\n/)
+          .filter((l) => l.startsWith('data:'))
+          .map((l) => l.slice(5).replace(/^ /, ''))
+        if (dataLines.length === 0) return
+        const payload = dataLines.join('\n').trim()
+        if (!payload || payload === '[DONE]') return
+        try {
+          const parsed = JSON.parse(payload)
+          const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text
+          if (text) {
+            totalDeltas++
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ delta: text })}\n\n`),
+            )
+          }
+          const finishReason = parsed?.candidates?.[0]?.finishReason
+          if (
+            finishReason &&
+            finishReason !== 'FINISH_REASON_UNSPECIFIED' &&
+            finishReason !== 'STOP'
+          ) {
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  error: 'finish_reason',
+                  message: `Resposta interrompida: ${finishReason}`,
+                })}\n\n`,
+              ),
+            )
+          }
+        } catch (e) {
+          // Loga o erro nos logs da Vercel para diagnóstico
+          // sem derrubar o stream
+          console.error('parser_error', {
+            message: e?.message,
+            payload_head: payload.slice(0, 200),
+          })
+        }
+      }
+
       try {
         for (;;) {
           const { value, done } = await reader.read()
           if (done) break
           buffer += decoder.decode(value, { stream: true })
-          const parts = buffer.split('\n\n')
-          buffer = parts.pop() ?? ''
-          for (const part of parts) {
-            const lines = part.split('\n')
-            for (const line of lines) {
-              if (!line.startsWith('data:')) continue
-              const payload = line.slice(5).trim()
-              if (!payload) continue
-              try {
-                const parsed = JSON.parse(payload)
-                const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text
-                if (text) {
-                  controller.enqueue(
-                    encoder.encode(
-                      `data: ${JSON.stringify({ delta: text })}\n\n`,
-                    ),
-                  )
-                }
-                const finishReason = parsed?.candidates?.[0]?.finishReason
-                if (finishReason && finishReason !== 'FINISH_REASON_UNSPECIFIED' && finishReason !== 'STOP') {
-                  controller.enqueue(
-                    encoder.encode(
-                      `data: ${JSON.stringify({
-                        error: 'finish_reason',
-                        message: `Resposta interrompida: ${finishReason}`,
-                      })}\n\n`,
-                    ),
-                  )
-                }
-              } catch {
-                // ignora pedaços malformados
-              }
-            }
+
+          // Suporta tanto \n\n quanto \r\n\r\n
+          let separatorIdx
+          while (
+            (separatorIdx = (() => {
+              const a = buffer.indexOf('\n\n')
+              const b = buffer.indexOf('\r\n\r\n')
+              if (a === -1 && b === -1) return -1
+              if (a === -1) return b
+              if (b === -1) return a
+              return Math.min(a, b)
+            })()) !== -1
+          ) {
+            const block = buffer.slice(0, separatorIdx)
+            // pula o separador (2 ou 4 chars)
+            const sep = buffer.charAt(separatorIdx) === '\r' ? 4 : 2
+            buffer = buffer.slice(separatorIdx + sep)
+            flushBlock(block)
           }
+        }
+        // flush do que sobrou
+        if (buffer.trim()) flushBlock(buffer)
+
+        if (totalDeltas === 0) {
+          // Não recebemos nenhum delta — devolve um erro útil em vez
+          // de um stream vazio.
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                error: 'empty_stream',
+                message:
+                  'O modelo não retornou texto. Verifique cota do projeto, modelo e payload.',
+              })}\n\n`,
+            ),
+          )
         }
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       } catch (e) {
@@ -196,7 +242,7 @@ export default async function handler(req) {
           encoder.encode(
             `data: ${JSON.stringify({
               error: 'stream_error',
-              message: String(e),
+              message: String(e?.message || e),
             })}\n\n`,
           ),
         )

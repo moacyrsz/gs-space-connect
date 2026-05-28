@@ -130,14 +130,17 @@ function Overview() {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-[11px] uppercase tracking-wider text-(--color-faint) font-medium mb-1">
+        <div className="space-y-1.5">
+          <p className="text-[11px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
             Dashboard
           </p>
-          <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-(--color-text)">
+          <h1
+            className="heading-display text-[30px] leading-[1.1] text-(--color-text)"
+            style={{ fontWeight: 580 }}
+          >
             Visão Geral
           </h1>
-          <p className="mt-1 text-[13px] text-(--color-muted) max-w-2xl">
+          <p className="text-[13px] text-(--color-muted) max-w-2xl leading-relaxed text-balance">
             Cruzamento de dados orbitais, IoT de campo e automação para monitorar
             risco de queimadas e degradação vegetal em tempo quase-real.
           </p>
@@ -151,9 +154,9 @@ function Overview() {
                 description: 'JSON com KPIs e alertas baixado para downloads',
               })
             }
-            className="inline-flex items-center gap-1.5 rounded-md border border-(--color-line) px-2.5 py-1 text-[11px] text-(--color-muted) hover:bg-(--color-panel-2) hover:text-(--color-text) transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 h-7 text-[11px] text-(--color-text-soft) shadow-[inset_0_0_0_1px_var(--color-line-strong)] hover:bg-(--color-surface-elevated)/60 hover:shadow-[inset_0_0_0_1px_var(--color-line-strongest)] transition-all duration-200"
           >
-            <ArrowUpRight className="h-3 w-3" />
+            <ArrowUpRight className="h-3 w-3" strokeWidth={1.75} />
             Exportar snapshot
           </button>
         </div>
@@ -551,13 +554,16 @@ function Overview() {
 
 function StatRow({ icon: Icon, label, value }) {
   return (
-    <div className="flex items-center gap-3 rounded-md border border-(--color-line) px-3 py-2.5 hover-lift">
-      <Icon className="h-3.5 w-3.5 text-(--color-faint)" />
+    <div className="flex items-center gap-3 rounded-lg px-3.5 py-2.5 shadow-[inset_0_0_0_1px_var(--color-line-strong),inset_0_1px_0_oklch(1_0_0_/_0.03)] hover-lift">
+      <Icon className="h-3.5 w-3.5 text-(--color-faint)" strokeWidth={1.75} />
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium truncate">
+        <p className="text-[10px] uppercase tracking-[0.08em] text-(--color-faint) font-medium truncate">
           {label}
         </p>
-        <p className="text-[14px] font-semibold tabular-nums text-(--color-text)">
+        <p
+          className="text-[15px] tabular-nums text-(--color-text) tracking-[-0.01em]"
+          style={{ fontWeight: 538 }}
+        >
           {value}
         </p>
       </div>
@@ -567,11 +573,13 @@ function StatRow({ icon: Icon, label, value }) {
 
 function ReadingItem({ label, value }) {
   return (
-    <div className="flex flex-col rounded-md border border-(--color-line) px-2.5 py-1.5">
-      <span className="text-[9px] uppercase tracking-wider text-(--color-faint) font-medium">
+    <div className="flex flex-col rounded-md px-2.5 py-1.5 shadow-[inset_0_0_0_1px_var(--color-line)]">
+      <span className="text-[9px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
         {label}
       </span>
-      <span className="text-[13px] font-medium tabular-nums">{value}</span>
+      <span className="text-[13px] font-medium tabular-nums" style={{ fontWeight: 510 }}>
+        {value}
+      </span>
     </div>
   )
 }

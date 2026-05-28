@@ -122,14 +122,17 @@ function AlertsMap() {
     <div className="flex flex-col gap-5">
       {/* Header */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-[11px] uppercase tracking-wider text-(--color-faint) font-medium mb-1">
+        <div className="space-y-1.5">
+          <p className="text-[11px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
             Geoespacial
           </p>
-          <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-(--color-text)">
+          <h1
+            className="heading-display text-[30px] leading-[1.1] text-(--color-text)"
+            style={{ fontWeight: 580 }}
+          >
             Mapa de Alertas
           </h1>
-          <p className="mt-1 text-[13px] text-(--color-muted) max-w-2xl">
+          <p className="text-[13px] text-(--color-muted) max-w-2xl leading-relaxed">
             Geolocalização dos alertas ativos sobre tile dark CARTO. Marcadores
             dimensionados por severidade.
           </p>
@@ -406,11 +409,11 @@ function AlertsMap() {
 }
 
 function StatPill({ label, value, variant = 'default' }) {
-  const variants = {
-    default: 'border-(--color-line)',
-    high: 'border-(--color-danger)/40',
-    medium: 'border-(--color-warning)/40',
-    low: 'border-(--color-success)/40',
+  const ringStyles = {
+    default: 'shadow-[inset_0_0_0_1px_var(--color-line-strong),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
+    high: 'shadow-[inset_0_0_0_1px_oklch(0.68_0.20_22_/_0.4),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
+    medium: 'shadow-[inset_0_0_0_1px_oklch(0.82_0.15_75_/_0.4),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
+    low: 'shadow-[inset_0_0_0_1px_oklch(0.78_0.14_155_/_0.4),inset_0_1px_0_oklch(1_0_0_/_0.03)]',
   }
   const valueColors = {
     default: 'text-(--color-text)',
@@ -419,11 +422,17 @@ function StatPill({ label, value, variant = 'default' }) {
     low: 'text-(--color-success)',
   }
   return (
-    <div className={cn('rounded-md border px-3 py-2 hover-lift', variants[variant])}>
-      <p className="text-[10px] uppercase tracking-wider text-(--color-faint) font-medium">
+    <div className={cn('rounded-lg px-4 py-3 hover-lift', ringStyles[variant])}>
+      <p className="text-[10px] uppercase tracking-[0.08em] text-(--color-faint) font-medium">
         {label}
       </p>
-      <p className={cn('text-[20px] font-semibold tabular-nums', valueColors[variant])}>
+      <p
+        className={cn(
+          'text-[24px] tabular-nums tracking-[-0.018em] mt-1',
+          valueColors[variant],
+        )}
+        style={{ fontWeight: 538 }}
+      >
         {value}
       </p>
     </div>
