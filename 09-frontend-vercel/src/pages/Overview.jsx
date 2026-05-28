@@ -363,8 +363,8 @@ function Overview() {
       </div>
 
       {/* Linha 2: tendência (stacked area) + Activity Feed */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
-        <Card className="xl:col-span-8 hover-lift">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-stretch">
+        <Card className="xl:col-span-8 hover-lift flex flex-col">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -384,8 +384,7 @@ function Overview() {
                 {trimmedTimeSeries
                   .reduce(
                     (acc, d) =>
-                      acc +
-                      biomes.reduce((sum, b) => sum + (d[b.id] || 0), 0),
+                      acc + biomes.reduce((sum, b) => sum + (d[b.id] || 0), 0),
                     0,
                   )
                   .toLocaleString('pt-BR')}{' '}
@@ -393,8 +392,8 @@ function Overview() {
               </Badge>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="h-[280px] -mx-2">
+          <CardContent className="flex flex-col flex-1 min-h-0 gap-3">
+            <div className="flex-1 min-h-[260px] -mx-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={trimmedTimeSeries}
@@ -461,7 +460,7 @@ function Overview() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-3 border-t border-(--color-line)">
               {biomes.map((b) => (
                 <div
                   key={b.id}
