@@ -1,0 +1,50 @@
+   minuto  temperatura_equipamento_c  radiacao_relativa  perda_comunicacao_pct  variacao_energia_pct  atraso_sinal_ms  indice_poeira  risco_critico
+0       0                      22.40              0.317                   2.61                  3.18            20.28          0.239              0
+1       1                      21.91              0.329                   1.28                  2.81            19.11          0.174              0
+2       2                      22.57              0.382                   2.73                  3.03            20.38          0.162              0
+3       3                      23.29              0.378                   3.13                  3.67            21.36          0.205              0
+4       4                      21.91              0.354                   2.39                  3.13            20.33          0.198              0
+Total de linhas: 300
+Colunas: ['minuto', 'temperatura_equipamento_c', 'radiacao_relativa', 'perda_comunicacao_pct', 'variacao_energia_pct', 'atraso_sinal_ms', 'indice_poeira', 'risco_critico']
+Quantidade de registros com risco crítico: 81
+
+TABELA 1 - Resultado dos jobs
+                      job                                    contexto  n_amostras_treino  n_features  epocas  forwards  atualizacoes    RAM  Registradores    ULA  energia_treino_pJ  energia_treino_J  acuracia_teste
+A - Edge espacial simples           sensor local com poucas variáveis                210           2       8      1680          1680  15120          20160  25200           10029600          0.000010        0.944444
+B - Operação Terra-espaço       operação com telemetria e comunicação                210           4      15      3150          3150  47250          56700  72450           31248000          0.000031        0.977778
+      C - Escala ampliada cenário com mais sensores e maior repetição                210           6      25      5250          5250 110250         126000 162750           72817500          0.000073        1.000000
+
+TABELA 2 - Projeção de escala
+                      job             escala  amostras  epocas  energia_estimada_pJ  energia_estimada_J                               decisao_infraestrutura
+A - Edge espacial simples Protótipo didático     10000      20         1.194000e+09            0.001194                                        Máquina local
+A - Edge espacial simples  Operação regional    200000      50         5.970000e+10            0.059700                                      Workstation/GPU
+A - Edge espacial simples Constelação global  10000000     100         5.970000e+12            5.970000                                              Cluster
+A - Edge espacial simples     Missão massiva 100000000     200         1.194000e+14          119.400000 Supercomputador ou revisão arquitetural/neuromórfica
+B - Operação Terra-espaço Protótipo didático     10000      20         1.984000e+09            0.001984                                        Máquina local
+B - Operação Terra-espaço  Operação regional    200000      50         9.920000e+10            0.099200                                      Workstation/GPU
+B - Operação Terra-espaço Constelação global  10000000     100         9.920000e+12            9.920000                                              Cluster
+B - Operação Terra-espaço     Missão massiva 100000000     200         1.984000e+14          198.400000 Supercomputador ou revisão arquitetural/neuromórfica
+      C - Escala ampliada Protótipo didático     10000      20         2.774000e+09            0.002774                                        Máquina local
+      C - Escala ampliada  Operação regional    200000      50         1.387000e+11            0.138700                                      Workstation/GPU
+      C - Escala ampliada Constelação global  10000000     100         1.387000e+13           13.870000                                              Cluster
+      C - Escala ampliada     Missão massiva 100000000     200         2.774000e+14          277.400000 Supercomputador ou revisão arquitetural/neuromórfica
+
+RESUMO PARA O RELATÓRIO
+============================================================
+A - Edge espacial simples: features=2, épocas=8, RAM=15120, Registradores=20160, ULA=25200, energia=10029600 pJ, acurácia=0.944
+B - Operação Terra-espaço: features=4, épocas=15, RAM=47250, Registradores=56700, ULA=72450, energia=31248000 pJ, acurácia=0.978
+C - Escala ampliada: features=6, épocas=25, RAM=110250, Registradores=126000, ULA=162750, energia=72817500 pJ, acurácia=1.000
+
+Projeção de infraestrutura:
+A - Edge espacial simples | Protótipo didático | energia=1.19e+09 pJ | Máquina local
+A - Edge espacial simples | Operação regional | energia=5.97e+10 pJ | Workstation/GPU
+A - Edge espacial simples | Constelação global | energia=5.97e+12 pJ | Cluster
+A - Edge espacial simples | Missão massiva | energia=1.19e+14 pJ | Supercomputador ou revisão arquitetural/neuromórfica
+B - Operação Terra-espaço | Protótipo didático | energia=1.98e+09 pJ | Máquina local
+B - Operação Terra-espaço | Operação regional | energia=9.92e+10 pJ | Workstation/GPU
+B - Operação Terra-espaço | Constelação global | energia=9.92e+12 pJ | Cluster
+B - Operação Terra-espaço | Missão massiva | energia=1.98e+14 pJ | Supercomputador ou revisão arquitetural/neuromórfica
+C - Escala ampliada | Protótipo didático | energia=2.77e+09 pJ | Máquina local
+C - Escala ampliada | Operação regional | energia=1.39e+11 pJ | Workstation/GPU
+C - Escala ampliada | Constelação global | energia=1.39e+13 pJ | Cluster
+C - Escala ampliada | Missão massiva | energia=2.77e+14 pJ | Supercomputador ou revisão arquitetural/neuromórfica

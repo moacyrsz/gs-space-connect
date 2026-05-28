@@ -1,0 +1,4 @@
+job,contexto,n_amostras_treino,n_features,epocas,forwards,atualizacoes,RAM,Registradores,ULA,energia_treino_pJ,energia_treino_J,acuracia_teste
+A - Edge espacial simples,sensor local com poucas variáveis,210,2,8,1680,1680,15120,20160,25200,10029600,1.00296e-05,0.9444444444444444
+B - Operação Terra-espaço,operação com telemetria e comunicação,210,4,15,3150,3150,47250,56700,72450,31248000,3.1247999999999996e-05,0.9777777777777777
+C - Escala ampliada,cenário com mais sensores e maior repetição,210,6,25,5250,5250,110250,126000,162750,72817500,7.28175e-05,1.0
