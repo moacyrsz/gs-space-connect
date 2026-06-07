@@ -1,7 +1,7 @@
 # Relatório Crítico — Chatbot Especialista em Edifícios Verdes / Net Zero
 
 **GS 2026.1 — Space Connect · Disciplina de NLP**
-**Aluno:** Moacyr Cabral da Silva — RM 559263
+<br>**Aluno:** Moacyr Cabral da Silva — RM 559263
 
 > Execução de referência: Google Colab (GPU T4), 942 pares de treino, fine-tuning
 > QLoRA de 112 passos (2 épocas), loss de treino 2,66 → 0,70. Resultados completos em
