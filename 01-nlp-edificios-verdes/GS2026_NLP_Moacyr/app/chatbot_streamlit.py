@@ -31,9 +31,9 @@ sys.path.insert(0, str(RAIZ / "src"))
 
 MODELO_BASE = "meta-llama/Llama-3.2-3B-Instruct"
 ADAPTADOR_DIR = RAIZ / "adaptador_lora"
-SYSTEM = ("Voce e um assistente especialista em edificios verdes e Net Zero de "
-          "energia e agua. Responda com precisao tecnica, citando requisitos, normas "
-          "e numeros quando aplicavel. Se a pergunta fugir do dominio, diga isso.")
+SYSTEM = ("Você é um assistente especialista em edifícios verdes e Net Zero de "
+          "energia e água. Responda com precisão técnica, citando requisitos, normas "
+          "e números quando aplicável. Se a pergunta fugir do domínio, diga isso.")
 
 st.set_page_config(page_title="Assistente Edificios Verdes / Net Zero", page_icon="🏢")
 
