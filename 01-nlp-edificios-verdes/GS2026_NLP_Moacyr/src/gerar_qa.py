@@ -40,10 +40,19 @@ CHECKPOINT = RAIZ / "data" / ".qa_checkpoint.json"
 RELATORIO = RAIZ / "relatorios" / "qa_geracao.md"
 
 MODELO_BASE = "meta-llama/Llama-3.2-3B-Instruct"
-ALVO_TOKENS_PASSAGEM = 800
+# Passagem menor para a soma (system + instrucao + passagem + geracao) caber com folga
+# no contexto efetivo de 1024 tokens usado no carregamento (evita o truncamento que o
+# unsloth avisava e que sujava a saida JSON).
+ALVO_TOKENS_PASSAGEM = 480
 TETO_CHUNKS_POR_DOC = 60
 MIN_CHARS_RESPOSTA = 30
 JACCARD_DUP = 0.85
+MAX_NEW_TOKENS = 512
+# Contexto com que o modelo e carregado no notebook (FastLanguageModel max_seq_length).
+# A geracao de Q&A precisa de prompt longo (passagem ~480 tok no tokenizer do Llama,
+# que gasta mais tokens em PT que o tiktoken do chunking) + espaco para a resposta.
+# 2048 da folga; o prompt e truncado defensivamente em CONTEXTO_MODELO - MAX_NEW_TOKENS.
+CONTEXTO_MODELO = 2048
 
 SYSTEM = (
     "Voce e um assistente que cria perguntas e respostas de estudo a partir de um "
@@ -127,28 +136,51 @@ def montar_passagens() -> list[dict]:
 
 
 def _extrair_json(texto: str) -> list[dict]:
-    """Extrai o primeiro array JSON da resposta do modelo (tolerante a ruido)."""
-    i, j = texto.find("["), texto.rfind("]")
-    if i == -1 or j == -1 or j < i:
-        return []
-    try:
-        dados = json.loads(texto[i:j + 1])
-        return dados if isinstance(dados, list) else []
-    except json.JSONDecodeError:
-        return []
+    """Extrai os pares da resposta do modelo, tolerante a ruido e a JSON truncado.
+
+    Estrategia em camadas:
+      1. tenta json.loads do array completo [...];
+      2. se falhar (modelo cortou o ']' final), faz parse objeto-a-objeto via regex,
+         aceitando os pares completos e ignorando o ultimo objeto truncado.
+    """
+    i = texto.find("[")
+    j = texto.rfind("]")
+    if i != -1 and j > i:
+        try:
+            dados = json.loads(texto[i:j + 1])
+            if isinstance(dados, list):
+                return [d for d in dados if isinstance(d, dict)]
+        except json.JSONDecodeError:
+            pass
+    # fallback: cada objeto {...} com pergunta e resposta, mesmo sem o array fechar
+    objetos = []
+    for m in re.finditer(r"\{[^{}]*\}", texto, re.DOTALL):
+        try:
+            d = json.loads(m.group(0))
+            if isinstance(d, dict) and "pergunta" in d and "resposta" in d:
+                objetos.append(d)
+        except json.JSONDecodeError:
+            continue
+    return objetos
 
 
 def _gerar_uma(model, tokenizer, passagem: str, n: int) -> list[dict]:
+    import torch
     msgs = [{"role": "system", "content": SYSTEM},
             {"role": "user", "content": INSTRUCAO.format(n=n, passagem=passagem)}]
-    entrada = tokenizer.apply_chat_template(
-        msgs, add_generation_prompt=True, return_tensors="pt").to(model.device)
-    import torch
+    # tokeniza com truncamento explicito: garante que o prompt + geracao caibam no
+    # contexto e evita o corte silencioso do unsloth que sujava a saida.
+    enc = tokenizer.apply_chat_template(
+        msgs, add_generation_prompt=True, return_tensors="pt",
+        truncation=True, max_length=CONTEXTO_MODELO - MAX_NEW_TOKENS, return_dict=True)
+    enc = {k: v.to(model.device) for k, v in enc.items()}
     with torch.no_grad():
-        saida = model.generate(entrada, max_new_tokens=700, do_sample=True,
-                               temperature=0.3, top_p=0.9,
-                               pad_token_id=tokenizer.eos_token_id)
-    texto = tokenizer.decode(saida[0][entrada.shape[1]:], skip_special_tokens=True)
+        saida = model.generate(
+            **enc, max_new_tokens=MAX_NEW_TOKENS, do_sample=True,
+            temperature=0.3, top_p=0.9,
+            pad_token_id=tokenizer.eos_token_id)  # attention_mask vem em enc
+    texto = tokenizer.decode(saida[0][enc["input_ids"].shape[1]:],
+                             skip_special_tokens=True)
     return _extrair_json(texto)
 
 
