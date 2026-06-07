@@ -1,8 +1,14 @@
 # Etapa 1 — Planejamento e Escopo
 
 **GS 2026.1 — Processamento de Linguagem Natural**
-**Aluno:** Moacyr Cabral da Silva — RM 559263
-**Tema:** Assistente para Projeto de Edifícios Eficientes quanto a Água e Energia
+<br>**Aluno:** Moacyr Cabral da Silva — RM 559263
+<br>**Tema:** Assistente para Projeto de Edifícios Eficientes quanto a Água e Energia
+
+> **Nota de revisão (pós-execução):** este documento registra o planejamento inicial
+> (Etapa 1). Uma decisão mudou na execução: os pares de Q&A passaram a ser gerados pelo
+> **próprio Llama 3.2 3B** (modo extrativo + verificação anti-alucinação), e **não** por
+> um LLM externo (Gemini), como previsto abaixo. As menções a Gemini são mantidas como
+> registro histórico do plano; a justificativa da mudança está no relatório crítico.
 
 ---
 

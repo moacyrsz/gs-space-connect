@@ -23,11 +23,11 @@ PDF = REL / "relatorio.pdf"
 # Ordem de consolidacao: critico primeiro (documento principal da Etapa 8),
 # depois os relatorios de apoio gerados pelas etapas 1, 3 e 4.
 PARTES = [
-    REL / "relatorio_critico.md",
-    REL / "01_planejamento.md",
-    REL / "limpeza_corpus.md",
-    REL / "chunking_embeddings.md",
-    REL / "qa_geracao.md",
+    REL / "relatorio_critico.md",   # Etapa 8 — documento principal
+    REL / "01_planejamento.md",      # Etapa 1
+    REL / "limpeza_corpus.md",       # Etapa 3 (extracao/limpeza)
+    REL / "qa_geracao.md",           # Etapa 3 (geracao de Q&A)
+    REL / "chunking_embeddings.md",  # Etapa 4
 ]
 
 CSS = """
