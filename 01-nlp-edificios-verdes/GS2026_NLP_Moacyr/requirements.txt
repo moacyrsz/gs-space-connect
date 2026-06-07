@@ -1,0 +1,17 @@
+# Pipeline NLP — chatbot Edificios Verdes / Net Zero
+# Fases LOCAIS (corpus, limpeza, chunking, embeddings, indexacao, chatbot):
+pymupdf>=1.24            # extracao de texto dos PDFs
+python-dotenv>=1.0       # leitura do .env (HF_TOKEN)
+tiktoken>=0.7            # contagem de tokens para o chunking
+sentence-transformers>=3.0   # embeddings intfloat/multilingual-e5-large
+chromadb>=0.5            # banco vetorial persistente
+streamlit>=1.39          # interface do chatbot
+
+# Fases de GPU (geracao de Q&A + fine-tuning QLoRA) — instaladas no Colab:
+# unsloth                # acelera o fine-tuning de Llama em T4 (puxa transformers/peft/trl/bitsandbytes)
+# transformers>=4.44
+# peft>=0.12
+# trl>=0.9
+# bitsandbytes>=0.43     # quantizacao 4-bit (NAO funciona em Mac/CPU — so GPU)
+# datasets>=2.20
+# evaluate, bert_score   # metrica BERTScore na avaliacao

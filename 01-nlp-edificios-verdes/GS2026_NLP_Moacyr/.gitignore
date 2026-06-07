@@ -1,0 +1,18 @@
+# Segredos — NUNCA versionar
+.env
+.env.*
+!.env.example
+
+# Ambiente Python
+.venv/
+__pycache__/
+*.pyc
+
+# Artefatos grandes / reproduziveis (regerados por scripts)
+corpus/*.pdf
+data/chroma_db/
+data/textos_limpos/
+*.part
+
+# Sistema
+.DS_Store

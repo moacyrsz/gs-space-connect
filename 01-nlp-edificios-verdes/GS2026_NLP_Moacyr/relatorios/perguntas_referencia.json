@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "tema": "energia",
+    "pergunta": "O que e uma edificacao de energia quase zero (NZEB) e qual o criterio minimo de geracao renovavel?",
+    "referencia": "Uma edificacao de energia quase zero (NZEB) e uma edificacao energeticamente eficiente cuja geracao de energia renovavel produzida nos limites da edificacao ou do lote supre 50% ou mais de sua demanda anual de energia. Quando a geracao supera a demanda anual, a edificacao e classificada como de energia positiva.",
+    "fonte": "A3 (INI-C / Inmetro, item 4.39)"
+  },
+  {
+    "id": 2,
+    "tema": "agua",
+    "pergunta": "Qual norma trata do aproveitamento de agua de chuva em edificacoes e para que fins ela permite o uso?",
+    "referencia": "A ABNT NBR 15527 trata do aproveitamento de agua de chuva de coberturas em areas urbanas para fins nao potaveis, estabelecendo os requisitos do projeto. Usos nao potaveis tipicos incluem descarga de bacias sanitarias, irrigacao de jardins, lavagem de pisos e de veiculos.",
+    "fonte": "C4 (Guia CBIC, Capitulo 3 - NBR 15527)"
+  },
+  {
+    "id": 3,
+    "tema": "agua",
+    "pergunta": "O que sao aguas cinzas e quais fontes domesticas sao indicadas para seu reuso?",
+    "referencia": "Aguas cinzas sao as aguas servidas de baixa carga de contaminacao geradas em atividades domesticas, como o banho (chuveiro e lavatorio) e a maquina de lavar roupas. Apos tratamento adequado, podem ser reutilizadas em usos nao potaveis como descarga sanitaria e limpeza, reduzindo o consumo de agua potavel.",
+    "fonte": "C5 (Manual IPT de aguas cinza)"
+  },
+  {
+    "id": 4,
+    "tema": "certificacao",
+    "pergunta": "Quais sao os niveis de certificacao do LEED?",
+    "referencia": "O LEED possui quatro niveis de certificacao, definidos pela pontuacao acumulada nos creditos: Certificado (Certified), Prata (Silver), Ouro (Gold) e Platina (Platinum). O nivel alvo e definido no inicio do projeto e determina a quantidade de pontos a ser alcancada.",
+    "fonte": "A2 (LEED v4 BD+C em portugues)"
+  },
+  {
+    "id": 5,
+    "tema": "energia",
+    "pergunta": "Como funciona o sistema de compensacao de energia eletrica na micro e minigeracao distribuida?",
+    "referencia": "No sistema de compensacao de energia eletrica, a energia gerada por uma unidade de micro ou minigeracao distribuida (por exemplo, paineis fotovoltaicos) e injetada na rede da distribuidora, gerando creditos de energia. Esses creditos abatem o consumo da propria unidade ou de outras unidades do mesmo titular, sendo medido o saldo liquido entre energia consumida e injetada.",
+    "fonte": "C3 (Cadernos Tematicos ANEEL)"
+  },
+  {
+    "id": 6,
+    "tema": "energia",
+    "pergunta": "Quais componentes basicos formam um sistema de aquecimento solar de agua?",
+    "referencia": "Um sistema de aquecimento solar de agua e composto basicamente pelos coletores solares (placas que captam a radiacao solar e aquecem a agua), pelo reservatorio termico (boiler, que armazena a agua aquecida), por um sistema de aquecimento auxiliar (eletrico ou a gas, para dias sem sol) e pela tubulacao que interliga os componentes, podendo operar por circulacao natural (termossifao) ou forcada.",
+    "fonte": "C2 (Manual de aquecimento solar LabEEE/UFSC)"
+  },
+  {
+    "id": 7,
+    "tema": "energia",
+    "pergunta": "O que e irradiacao solar e por que ela e importante no dimensionamento de sistemas fotovoltaicos?",
+    "referencia": "A irradiacao solar e a energia proveniente do sol que incide sobre uma superficie por unidade de area ao longo do tempo, normalmente expressa em kWh/m2 por dia. E o principal parametro de entrada no dimensionamento de sistemas fotovoltaicos, pois determina quanta energia os modulos podem gerar em um dado local; quanto maior a irradiacao media, menor o numero de modulos necessario para atender a uma mesma demanda.",
+    "fonte": "C1 (Manual de Engenharia para Sistemas Fotovoltaicos CRESESB)"
+  },
+  {
+    "id": 8,
+    "tema": "certificacao",
+    "pergunta": "Quais categorias de uso final da agua o Selo Casa Azul CAIXA incentiva para uma habitacao mais sustentavel?",
+    "referencia": "O Selo Casa Azul CAIXA incentiva o uso racional da agua por meio de medidas como medicao individualizada, aparelhos economizadores (bacias de descarga de volume reduzido, arejadores e restritores de vazao), aproveitamento de agua pluvial e reuso de aguas cinzas, alem de praticas de eficiencia energetica como aquecimento solar e iluminacao eficiente.",
+    "fonte": "A5 (Selo Casa Azul CAIXA)"
+  },
+  {
+    "id": 9,
+    "tema": "agua",
+    "pergunta": "Quais componentes basicos compoem um sistema de aproveitamento de agua de chuva em uma edificacao?",
+    "referencia": "Um sistema de aproveitamento de agua de chuva e composto pela area de captacao (geralmente a cobertura), calhas e condutores, um dispositivo de descarte das primeiras aguas (first flush), filtros ou peneiras para remocao de detritos, o reservatorio de armazenamento e a rede de distribuicao independente para os pontos de uso nao potavel, devidamente sinalizada para evitar conexao cruzada com a agua potavel.",
+    "fonte": "B4/B5 (estudos de caso de agua pluvial) e C4 (NBR 15527)"
+  },
+  {
+    "id": 10,
+    "tema": "certificacao",
+    "pergunta": "O que avalia a etiquetagem de eficiencia energetica de edificacoes (PBE Edifica / INI-C) e como e expressa a classificacao?",
+    "referencia": "A etiquetagem de eficiencia energetica de edificacoes avalia o desempenho da edificacao quanto ao consumo de energia, considerando a envoltoria, o sistema de iluminacao e o sistema de condicionamento de ar, alem da geracao local de energia. A classificacao e expressa em uma escala de niveis de A (mais eficiente) a E (menos eficiente), podendo ser parcial (por sistema) ou geral da edificacao.",
+    "fonte": "A3 (INI-C) e B2 (Manual de aplicacao da INI-C / PROCEL)"
+  }
+]

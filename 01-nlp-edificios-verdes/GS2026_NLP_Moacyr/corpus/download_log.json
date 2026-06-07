@@ -1,0 +1,77 @@
+[
+  {
+    "id": "A1",
+    "status": "pulado",
+    "bytes": 1324538
+  },
+  {
+    "id": "A2",
+    "status": "pulado",
+    "bytes": 1986004
+  },
+  {
+    "id": "A3",
+    "status": "pulado",
+    "bytes": 4481252
+  },
+  {
+    "id": "A4",
+    "status": "pulado",
+    "bytes": 2748245
+  },
+  {
+    "id": "A5",
+    "status": "pulado",
+    "bytes": 4876070
+  },
+  {
+    "id": "B1",
+    "status": "ok",
+    "bytes": 8311102
+  },
+  {
+    "id": "B2",
+    "status": "ok",
+    "bytes": 4472918
+  },
+  {
+    "id": "B3",
+    "status": "ok",
+    "bytes": 913946
+  },
+  {
+    "id": "B4",
+    "status": "ok",
+    "bytes": 671359
+  },
+  {
+    "id": "B5",
+    "status": "ok",
+    "bytes": 289695
+  },
+  {
+    "id": "C1",
+    "status": "ok",
+    "bytes": 17589021
+  },
+  {
+    "id": "C2",
+    "status": "ok",
+    "bytes": 2504061
+  },
+  {
+    "id": "C3",
+    "status": "ok",
+    "bytes": 833629
+  },
+  {
+    "id": "C4",
+    "status": "ok",
+    "bytes": 9578750
+  },
+  {
+    "id": "C5",
+    "status": "ok",
+    "bytes": 4582288
+  }
+]
