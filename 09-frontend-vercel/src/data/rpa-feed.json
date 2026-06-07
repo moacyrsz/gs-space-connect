@@ -1,0 +1,287 @@
+{
+  "generated_at": "2026-05-28T22:45:52+00:00",
+  "year": 2026,
+  "reference_month": 5,
+  "reference_month_label": "maio",
+  "data_source": {
+    "name": "INPE — Programa Queimadas (Estatísticas por Bioma)",
+    "url": "https://terrabrasilis.dpi.inpe.br/queimadas/situacao-atual/estatisticas/estatisticas_estados/",
+    "license": "Dados abertos / uso público"
+  },
+  "model": {
+    "kind": "RandomForestClassifier",
+    "library": "scikit-learn",
+    "training_samples": 1796,
+    "class_distribution": {
+      "baixo": 1180,
+      "critico": 418,
+      "moderado": 198
+    },
+    "accuracy": 0.9978,
+    "macro_f1": 0.995
+  },
+  "ranking": [
+    {
+      "bioma_id": "amazonia",
+      "bioma_label": "Amazônia",
+      "focos_acumulados": 4956,
+      "share_pct": 35.86
+    },
+    {
+      "bioma_id": "cerrado",
+      "bioma_label": "Cerrado",
+      "focos_acumulados": 4322,
+      "share_pct": 31.28
+    },
+    {
+      "bioma_id": "mata-atlantica",
+      "bioma_label": "Mata Atlântica",
+      "focos_acumulados": 2168,
+      "share_pct": 15.69
+    },
+    {
+      "bioma_id": "caatinga",
+      "bioma_label": "Caatinga",
+      "focos_acumulados": 2083,
+      "share_pct": 15.07
+    },
+    {
+      "bioma_id": "pantanal",
+      "bioma_label": "Pantanal",
+      "focos_acumulados": 156,
+      "share_pct": 1.13
+    },
+    {
+      "bioma_id": "pampa",
+      "bioma_label": "Pampa",
+      "focos_acumulados": 134,
+      "share_pct": 0.97
+    }
+  ],
+  "extremos": [
+    {
+      "bioma_id": "amazonia",
+      "bioma_label": "Amazônia",
+      "ano_pico": 2004,
+      "focos_pico_anual": 218637,
+      "ano_max_mensal": 2007,
+      "mes_max_mensal": 9,
+      "focos_max_mensal": 73141
+    },
+    {
+      "bioma_id": "cerrado",
+      "bioma_label": "Cerrado",
+      "ano_pico": 2007,
+      "focos_pico_anual": 137918,
+      "ano_max_mensal": 2010,
+      "mes_max_mensal": 9,
+      "focos_max_mensal": 52491
+    },
+    {
+      "bioma_id": "mata-atlantica",
+      "bioma_label": "Mata Atlântica",
+      "ano_pico": 2003,
+      "focos_pico_anual": 44431,
+      "ano_max_mensal": 2003,
+      "mes_max_mensal": 9,
+      "focos_max_mensal": 11963
+    },
+    {
+      "bioma_id": "caatinga",
+      "bioma_label": "Caatinga",
+      "ano_pico": 2003,
+      "focos_pico_anual": 32773,
+      "ano_max_mensal": 2003,
+      "mes_max_mensal": 10,
+      "focos_max_mensal": 8722
+    },
+    {
+      "bioma_id": "pantanal",
+      "bioma_label": "Pantanal",
+      "ano_pico": 2020,
+      "focos_pico_anual": 22116,
+      "ano_max_mensal": 2020,
+      "mes_max_mensal": 9,
+      "focos_max_mensal": 8106
+    },
+    {
+      "bioma_id": "pampa",
+      "bioma_label": "Pampa",
+      "ano_pico": 2003,
+      "focos_pico_anual": 1798,
+      "ano_max_mensal": 1999,
+      "mes_max_mensal": 12,
+      "focos_max_mensal": 1053
+    }
+  ],
+  "alerts": [
+    {
+      "id": "RPA-2026-AMA",
+      "biome": "amazonia",
+      "biome_label": "Amazônia",
+      "severity": "low",
+      "severity_raw": "baixo",
+      "confidence": 0.9993,
+      "proba": {
+        "baixo": 0.9993,
+        "critico": 0.0004,
+        "moderado": 0.0004
+      },
+      "coords": [
+        -3.47,
+        -62.21
+      ],
+      "region": "Amazônia — leitura RPA INPE",
+      "message": "751 focos em maio — 0.56× o p75 histórico (1333). Dentro do esperado para o período.",
+      "metrics": {
+        "focos_mes": 751,
+        "p75_mes": 1333.0,
+        "p90_mes": 1840.8,
+        "acumulado_ano": 4956,
+        "razao_p75": 0.563,
+        "razao_p90": 0.408
+      },
+      "source": "rpa"
+    },
+    {
+      "id": "RPA-2026-CAA",
+      "biome": "caatinga",
+      "biome_label": "Caatinga",
+      "severity": "high",
+      "severity_raw": "critico",
+      "confidence": 1.0,
+      "proba": {
+        "baixo": 0.0,
+        "critico": 1.0,
+        "moderado": 0.0
+      },
+      "coords": [
+        -9.39,
+        -40.5
+      ],
+      "region": "Caatinga — leitura RPA INPE",
+      "message": "299 focos em maio — 2.03× o p75 histórico (147). Padrão crítico, recomendar fiscalização imediata.",
+      "metrics": {
+        "focos_mes": 299,
+        "p75_mes": 147.5,
+        "p90_mes": 195.4,
+        "acumulado_ano": 2083,
+        "razao_p75": 2.027,
+        "razao_p90": 1.53
+      },
+      "source": "rpa"
+    },
+    {
+      "id": "RPA-2026-CER",
+      "biome": "cerrado",
+      "biome_label": "Cerrado",
+      "severity": "low",
+      "severity_raw": "baixo",
+      "confidence": 0.9957,
+      "proba": {
+        "baixo": 0.9957,
+        "critico": 0.0001,
+        "moderado": 0.0042
+      },
+      "coords": [
+        -15.78,
+        -47.93
+      ],
+      "region": "Cerrado — leitura RPA INPE",
+      "message": "2035 focos em maio — 0.81× o p75 histórico (2517). Dentro do esperado para o período.",
+      "metrics": {
+        "focos_mes": 2035,
+        "p75_mes": 2517.5,
+        "p90_mes": 2944.4,
+        "acumulado_ano": 4322,
+        "razao_p75": 0.808,
+        "razao_p90": 0.691
+      },
+      "source": "rpa"
+    },
+    {
+      "id": "RPA-2026-MAT",
+      "biome": "mata-atlantica",
+      "biome_label": "Mata Atlântica",
+      "severity": "low",
+      "severity_raw": "baixo",
+      "confidence": 0.9965,
+      "proba": {
+        "baixo": 0.9965,
+        "critico": 0.0033,
+        "moderado": 0.0002
+      },
+      "coords": [
+        -22.91,
+        -43.17
+      ],
+      "region": "Mata Atlântica — leitura RPA INPE",
+      "message": "250 focos em maio — 0.33× o p75 histórico (752). Dentro do esperado para o período.",
+      "metrics": {
+        "focos_mes": 250,
+        "p75_mes": 752.0,
+        "p90_mes": 1022.6,
+        "acumulado_ano": 2168,
+        "razao_p75": 0.332,
+        "razao_p90": 0.244
+      },
+      "source": "rpa"
+    },
+    {
+      "id": "RPA-2026-PAM",
+      "biome": "pampa",
+      "biome_label": "Pampa",
+      "severity": "low",
+      "severity_raw": "baixo",
+      "confidence": 0.9985,
+      "proba": {
+        "baixo": 0.9985,
+        "critico": 0.0011,
+        "moderado": 0.0003
+      },
+      "coords": [
+        -30.03,
+        -51.23
+      ],
+      "region": "Pampa — leitura RPA INPE",
+      "message": "28 focos em maio — 0.27× o p75 histórico (105). Dentro do esperado para o período.",
+      "metrics": {
+        "focos_mes": 28,
+        "p75_mes": 105.0,
+        "p90_mes": 174.4,
+        "acumulado_ano": 134,
+        "razao_p75": 0.267,
+        "razao_p90": 0.161
+      },
+      "source": "rpa"
+    },
+    {
+      "id": "RPA-2026-PAN",
+      "biome": "pantanal",
+      "biome_label": "Pantanal",
+      "severity": "low",
+      "severity_raw": "baixo",
+      "confidence": 0.9985,
+      "proba": {
+        "baixo": 0.9985,
+        "critico": 0.0011,
+        "moderado": 0.0003
+      },
+      "coords": [
+        -19.01,
+        -57.65
+      ],
+      "region": "Pantanal — leitura RPA INPE",
+      "message": "34 focos em maio — 0.32× o p75 histórico (106). Dentro do esperado para o período.",
+      "metrics": {
+        "focos_mes": 34,
+        "p75_mes": 106.5,
+        "p90_mes": 272.8,
+        "acumulado_ano": 156,
+        "razao_p75": 0.319,
+        "razao_p90": 0.125
+      },
+      "source": "rpa"
+    }
+  ]
+}

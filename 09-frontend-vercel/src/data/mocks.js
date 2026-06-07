@@ -1,6 +1,12 @@
 // Dados mockados embasados em referências reais (NASA FIRMS, INPE TerraBrasilis,
 // Global Forest Watch). O enunciado da disciplina permite dados simulados.
-// Substituir por chamadas reais quando as demais disciplinas estiverem prontas.
+// Os alertas com source="rpa" e o ranking de biomas vêm do pipeline real
+// (disciplina 07 — AI for RPA), publicado em src/data/rpa-feed.json a cada
+// execução do robô que coleta dados do INPE.
+
+import rpaFeed from './rpa-feed.json'
+
+export const rpaSnapshot = rpaFeed
 
 export const biomes = [
   { id: 'amazonia', label: 'Amazônia', color: 'oklch(0.62 0.18 145)' },
@@ -17,7 +23,24 @@ export const ranges = [
   { id: '30d', label: '30 dias' },
 ]
 
-export const initialAlerts = [
+// Alertas reais derivados do pipeline RPA (disciplina 07): cada bioma com
+// severidade != 'baixo' vira um alerta no dashboard. O timestamp do alerta é
+// o `generated_at` do feed (quando o robô rodou pela última vez).
+const rpaAlerts = (rpaFeed.alerts || [])
+  .filter((a) => a.severity_raw !== 'baixo')
+  .map((a) => ({
+    id: a.id,
+    severity: a.severity,
+    source: a.source,
+    biome: a.biome,
+    region: a.region,
+    coords: a.coords,
+    message: a.message,
+    proba: a.confidence,
+    at: new Date(rpaFeed.generated_at),
+  }))
+
+const baseAlerts = [
   {
     id: 'A-2406-0921',
     severity: 'high',
@@ -52,17 +75,6 @@ export const initialAlerts = [
     at: new Date(Date.now() - 42 * 60 * 1000),
   },
   {
-    id: 'A-2406-0911',
-    severity: 'low',
-    source: 'rpa',
-    biome: 'cerrado',
-    region: 'TerraBrasilis (INPE)',
-    coords: [-15.78, -47.93],
-    message: 'Novo lote de focos publicado: 312 registros',
-    proba: null,
-    at: new Date(Date.now() - 67 * 60 * 1000),
-  },
-  {
     id: 'A-2406-0907',
     severity: 'medium',
     source: 'visao',
@@ -73,18 +85,9 @@ export const initialAlerts = [
     proba: 0.58,
     at: new Date(Date.now() - 95 * 60 * 1000),
   },
-  {
-    id: 'A-2406-0902',
-    severity: 'low',
-    source: 'rpa',
-    biome: 'mata-atlantica',
-    region: 'NASA POWER — coleta agendada',
-    coords: [-22.91, -43.17],
-    message: 'Telemetria climática semanal sincronizada',
-    proba: null,
-    at: new Date(Date.now() - 130 * 60 * 1000),
-  },
 ]
+
+export const initialAlerts = [...rpaAlerts, ...baseAlerts]
 
 export const sourceLabels = {
   visao: 'Visão Computacional',

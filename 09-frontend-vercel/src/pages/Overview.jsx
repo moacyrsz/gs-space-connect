@@ -56,6 +56,7 @@ import {
   buildTimeSeries,
   initialAlerts,
   mockSensorReading,
+  rpaSnapshot,
   sourceColors,
   sourceLabels,
 } from '@/data/mocks'
@@ -159,6 +160,7 @@ function Overview() {
             Cruzamento de dados orbitais, IoT de campo e automação para monitorar
             risco de queimadas e degradação vegetal em tempo quase-real.
           </p>
+          <RpaFreshness snapshot={rpaSnapshot} />
         </div>
         <div className="flex items-center gap-2">
           <RangeFilter value={range} onChange={setRange} />
@@ -587,6 +589,32 @@ function StatRow({ icon: Icon, label, value }) {
           {value}
         </p>
       </div>
+    </div>
+  )
+}
+
+function RpaFreshness({ snapshot }) {
+  if (!snapshot?.generated_at) return null
+  const at = new Date(snapshot.generated_at)
+  const stamp = at.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  const acc = (snapshot.model?.accuracy ?? 0) * 100
+  return (
+    <div className="inline-flex items-center gap-2 mt-2 rounded-md border border-(--color-line) bg-(--color-surface) px-2.5 py-1 text-[10.5px] text-(--color-muted)">
+      <Workflow className="h-3 w-3 text-(--color-accent)" strokeWidth={1.75} />
+      <span style={{ fontFamily: 'var(--font-mono)' }} className="text-(--color-text-soft)">
+        RPA · INPE
+      </span>
+      <span className="text-(--color-faint)">·</span>
+      <span style={{ fontFamily: 'var(--font-mono)' }}>{stamp}</span>
+      <span className="text-(--color-faint)">·</span>
+      <span style={{ fontFamily: 'var(--font-mono)' }}>
+        modelo {acc.toFixed(1)}%
+      </span>
     </div>
   )
 }
